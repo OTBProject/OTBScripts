@@ -49,8 +49,20 @@ public boolean execute(DatabaseWrapper db, String[] args, String channel, String
             if (!enoughArgs(1, args)) {
                 return false;
             }
-            // TODO check responseModifyingUL
-            // TODO check ULModifyingUL if UL != IGNORED
+
+            if (Command.exists(db, args[0])) {
+                // Check UL to modify response
+                if (userLevel.getValue() < UserLevel.valueOf((String)Command.get(db, args[0], CommandFields.RESPONSE_MODIFYING_UL)).getValue()) {
+                    // TODO run ~%general:insufficient.user.level
+                    return false;
+                }
+                // Check UL to modify UL, if user is attempting to do so
+                if ((execUL != UserLevel.IGNORED) && (userLevel.getValue() < UserLevel.valueOf((String)Command.get(db, args[0], CommandFields.USER_LEVEL_MODIFYING_UL)).getValue())) {
+                    // TODO run ~%general:insufficient.user.level
+                    return false;
+                }
+            }
+
             // TODO create new command and run ~%command.set.success
             break;
         case "remove":
@@ -89,8 +101,12 @@ public boolean execute(DatabaseWrapper db, String[] args, String channel, String
             // TODO handle invalid arg
             break;
     }
+    // TODO possibly change?
+    return true;
 }
 
+// If returned UL is IGNORED, then user is not attempting to modify it
+// If returned minArgs is -1, then user is not attempting to modify it
 private getFlags(String[] args) throws Exception {
     if (args.length == 0) {
         return new String[0];
