@@ -1,4 +1,5 @@
 import com.github.otbproject.otbproject.App
+import com.github.otbproject.otbproject.channels.Channel
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.users.UserLevel
 
@@ -8,15 +9,18 @@ public boolean execute(DatabaseWrapper db, String[] args, String channel, String
         return false;
     }
 
+    Channel channelObj = App.bot.channels.get(channel);
+
     switch (args[0].toLowerCase()) {
         case "on":
         case "true":
-            App.bot.channels.get(channel).getConfig().setSilenced(true);
+            channelObj.getConfig().setSilenced(true);
+            channelObj.sendQueue.clear();
             // TODO some success command
             return true;
         case "off":
         case "false":
-            App.bot.channels.get(channel).getConfig().setSilenced(false);
+            channelObj.getConfig().setSilenced(false);
             // TODO some success command
             return true;
         default:
