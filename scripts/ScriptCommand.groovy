@@ -4,7 +4,7 @@ import com.github.otbproject.otbproject.commands.CommandFields
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.users.UserLevel
 
-public boolean execute(DatabaseWrapper db, String[] args, String channel, String user, UserLevel userLevel) {
+public boolean execute(DatabaseWrapper db, String[] args, String channel, String destinationChannel, String user, UserLevel userLevel) {
     if (!enoughArgs(1, args)) {
         return false;
     }
@@ -19,7 +19,7 @@ public boolean execute(DatabaseWrapper db, String[] args, String channel, String
     int minArgs;
     UserLevel execUL;
 
-    switch (action) {
+    switch (action.toLowerCase()) {
         case "add":
         case "new":
             try {
@@ -39,6 +39,7 @@ public boolean execute(DatabaseWrapper db, String[] args, String channel, String
             // TODO create new command and run ~%command.add.success
             break;
         case "set":
+        case "edit":
             try {
                 (execUL, minArgs, args) = getFlags(args)
             } catch (Exception e) {
