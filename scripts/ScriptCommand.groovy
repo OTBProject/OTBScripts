@@ -1,115 +1,211 @@
 import com.github.otbproject.otbproject.App
+import com.github.otbproject.otbproject.commands.Alias
 import com.github.otbproject.otbproject.commands.Command
-import com.github.otbproject.otbproject.commands.CommandFields
+import com.github.otbproject.otbproject.commands.loader.CommandLoader
+import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
+import com.github.otbproject.otbproject.commands.loader.LoadedCommand
 import com.github.otbproject.otbproject.database.DatabaseWrapper
+import com.github.otbproject.otbproject.messages.send.MessagePriority
+import com.github.otbproject.otbproject.proc.CommandProcessor
+import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.users.UserLevel
+import com.github.otbproject.otbproject.util.BuiltinCommands
+import com.github.otbproject.otbproject.util.ScriptHelper
+import org.apache.logging.log4j.Level
 
-public boolean execute(DatabaseWrapper db, String[] args, String channel, String destinationChannel, String user, UserLevel userLevel) {
-    if (!enoughArgs(1, args)) {
+public class ResponseCmd {
+    public static final String GENERAL_DOES_NOT_EXIST = "~%command.general:does.not.exist";
+    public static final String ADD_ALREADY_EXISTS = "~%command.add.already.exists";
+    public static final String SET_SUCCESS = "~%command.set.success";
+    public static final String SET_IS_ALIAS = "~%command.set.is.alias";
+    public static final String REMOVE_SUCCESS = "~%command.remove.success";
+}
+
+public boolean execute(ScriptArgs sArgs) {
+    if (!enoughArgs(1, sArgs)) {
         return false;
     }
-    String action = args[0];
+    String action = sArgs.argsList[0];
 
-    if (args.length == 1) {
-        args = new String[0];
+    if (sArgs.argsList.length == 1) {
+        sArgs.argsList = new String[0];
     } else {
-        args = args[1..-1];
+        sArgs.argsList = sArgs.argsList[1..-1];
     }
-
-    int minArgs;
-    UserLevel execUL;
 
     switch (action.toLowerCase()) {
         case "add":
         case "new":
-            try {
-                (execUL, minArgs, args) = getFlags(args)
-            } catch (Exception e) {
-                App.logger.debug(e.getMessage()); // TODO possibly remove
-                return false;
-            }
-
-            if (!enoughArgs(1, args)) {
-                return false;
-            }
-            if (Command.exists(db, args[0])) {
-                // TODO run ~%command.add.already.exists
-                break;
-            }
-            // TODO create new command and run ~%command.add.success
-            break;
+            return add(sArgs);
         case "set":
         case "edit":
-            try {
-                (execUL, minArgs, args) = getFlags(args)
-            } catch (Exception e) {
-                App.logger.debug(e.getMessage()); // TODO possibly remove
-                return false;
-            }
-
-            if (!enoughArgs(1, args)) {
-                return false;
-            }
-
-            if (Command.exists(db, args[0])) {
-                // Check UL to modify response
-                if (userLevel.getValue() < UserLevel.valueOf((String)Command.get(db, args[0], CommandFields.RESPONSE_MODIFYING_UL)).getValue()) {
-                    // TODO run ~%general:insufficient.user.level
-                    return false;
-                }
-                // Check UL to modify UL, if user is attempting to do so
-                if ((execUL != UserLevel.IGNORED) && (userLevel.getValue() < UserLevel.valueOf((String)Command.get(db, args[0], CommandFields.USER_LEVEL_MODIFYING_UL)).getValue())) {
-                    // TODO run ~%general:insufficient.user.level
-                    return false;
-                }
-            }
-
-            // TODO create new command and run ~%command.set.success
-            break;
+            return set(sArgs);
         case "remove":
         case "delete":
         case "del":
         case "rm":
-            if (!enoughArgs(1, args)) {
-                return false;
-            }
-            if (!Command.exists(db, args[0])) {
-                // TODO run ~%command.remove.does.not.exist
-                return false;
-            }
-            if (userLevel.getValue() < UserLevel.valueOf((String)Command.get(db, args[0], CommandFields.USER_LEVEL_MODIFYING_UL)).getValue()) {
-                // TODO run ~%general:insufficient.user.level
-                return false;
-            }
-            Command.remove(db, args[0]);
-            // TODO run ~%command.remove.success
-            break;
+            return remove(sArgs);
         case "list":
-            // TODO figure out how to get a list of commands
-            break;
+            return list(sArgs.db, sArgs.destinationChannel);
         case "raw":
-            if (!enoughArgs(1, args)) {
-                return false;
-            }
-            if (!Command.exists(db, args[0])) {
-                // TODO run ~%command.raw.does.not.exist
-                return false;
-            }
-            String raw = Command.get(db, args[0], CommandFields.RESPONSE)
-            // TODO send message with 'raw'
-            break;
+            return raw(sArgs);
         default:
-            // TODO handle invalid arg
-            break;
+            String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + action;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
     }
-    // TODO possibly change?
+}
+
+private boolean add(ScriptArgs sArgs) {
+    int minArgs;
+    UserLevel execUL;
+
+    try {
+        (execUL, minArgs) = getFlags(sArgs);
+    } catch (Exception e) {
+        App.logger.debug(e.getMessage(), Level.DEBUG);
+        return false;
+    }
+
+    if (!enoughArgs(2, sArgs)) {
+        return false;
+    }
+    if (Command.exists(sArgs.db, sArgs.argsList[0])) {
+        String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+
+    LoadedCommand command = DefaultCommandGenerator.createDefaultCommand();
+    command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
+    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    // Check if command is an alias
+    String commandStr;
+    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
+        commandStr = ResponseCmd.SET_IS_ALIAS + " " + sArgs.argsList[0];
+    } else {
+        commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
+    }
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean set(ScriptArgs sArgs) {
+    int minArgs;
+    UserLevel execUL;
+
+    try {
+        (execUL, minArgs) = getFlags(sArgs);
+    } catch (Exception e) {
+        App.logger.debug(e.getMessage(), Level.DEBUG);
+        return false;
+    }
+
+    if (!enoughArgs(2, sArgs)) {
+        return false;
+    }
+
+    LoadedCommand command
+    if (Command.exists(sArgs.db, sArgs.argsList[0])) {
+        command =  Command.get(sArgs.db, sArgs.argsList[0])
+
+        // Check UL to modify response
+        if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
+            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify response of command '" + sArgs.argsList[0] + "'";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
+        }
+        // Check UL to modify UL, if user is attempting to do so
+        if ((execUL != UserLevel.IGNORED) && (sArgs.userLevel.getValue() < command.modifyingUserLevels.getUserLevelModifyingUL().getValue())) {
+            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify exec user level of command '" + sArgs.argsList[0] + "'";;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
+        }
+        command.setCount(0);
+    }
+    else {
+        command = DefaultCommandGenerator.createDefaultCommand();
+    }
+
+    command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
+    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    // Check if command is an alias
+    String commandStr;
+    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
+        commandStr = ResponseCmd.SET_IS_ALIAS + " " + sArgs.argsList[0];
+    } else {
+        commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
+    }
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean remove(ScriptArgs sArgs) {
+    if (!enoughArgs(1, sArgs)) {
+        return false;
+    }
+    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getUserLevelModifyingUL().getValue()) {
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    Command.remove(sArgs.db, sArgs.argsList[0]);
+    String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[0];
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean list(DatabaseWrapper db, String destinationChannel) {
+    ArrayList<String> list = Command.getCommands(db);
+    for (Iterator<String> i = list.iterator(); i.hasNext();) {
+        if (i.next().startsWith("~%")) {
+            i.remove();
+        }
+    }
+    Collections.sort(list);
+    String asString = "Commands: " + list.toString();
+    ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean raw(ScriptArgs sArgs) {
+    if (!enoughArgs(1, sArgs)) {
+        return false;
+    }
+    // Parse through aliases
+    String commandName = CommandProcessor.checkAlias(sArgs.db, sArgs.argsList[0]);
+    String raw = "";
+    if (sArgs.argsList[0] != commandName) {
+        raw = "'" + sArgs.argsList[0] + "' is aliased to '" + commandName + "'. ";
+    }
+    commandName = commandName.split(" ")[0];
+
+    if (!Command.exists(sArgs.db, commandName)) {
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + commandName;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    LoadedCommand command = Command.get(sArgs.db, commandName)
+    raw += "The raw response for '" + commandName + "' is";
+    if ((command.getScript() != null) && (command.getScript() != "null")) {
+        raw += " ignored because '" + commandName + "' is a script command.";
+    } else {
+        raw += ": " + command.getResponse();
+    }
+    ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
     return true;
 }
 
 // If returned UL is IGNORED, then user is not attempting to modify it
 // If returned minArgs is -1, then user is not attempting to modify it
-private getFlags(String[] args) throws Exception {
-    if (args.length == 0) {
+private getFlags(ScriptArgs sArgs) throws Exception {
+    if (sArgs.argsList.length == 0) {
         return new String[0];
     }
 
@@ -118,7 +214,7 @@ private getFlags(String[] args) throws Exception {
     int minArgs = -1;
     boolean doneMinArgs = false;
 
-    String firstArg = args[0];
+    String firstArg = sArgs.argsList[0];
 
     while (firstArg.startsWith("--")) {
         if (firstArg.startsWith("--ul=") && !doneUL) {
@@ -154,7 +250,8 @@ private getFlags(String[] args) throws Exception {
                     ul = UserLevel.DEFAULT
                     break;
                 default:
-                    // TODO run ~%general:invalid.flag
+                    String commandStr = BuiltinCommands.GENERAL_INVALID_FLAG + " " + sArgs.commandName + " --ul=" + firstArg;
+                    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                     throw new Exception("Invalid flag.")
             }
             doneUL = true;
@@ -162,43 +259,49 @@ private getFlags(String[] args) throws Exception {
         else if (firstArg.startsWith("--ma=") && !doneMinArgs) {
             firstArg = firstArg.replaceFirst("--ma=", "")
             if (firstArg ==~ /^\d+$/) {
-                minArgs = Integer.getInteger(firstArg)
+                minArgs = Integer.parseInt(firstArg)
             }
             else {
-                // TODO run ~%general:invalid.flag
+                String commandStr = BuiltinCommands.GENERAL_INVALID_FLAG + " " + sArgs.commandName + " --ma=" + firstArg;
+                ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 throw new Exception("Invalid flag.")
             }
             doneMinArgs = true;
         }
         // Fail
         else {
-            // TODO run ~%general:invalid.flag
+            String commandStr = BuiltinCommands.GENERAL_INVALID_FLAG + " " + sArgs.commandName + " " + firstArg;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             throw new Exception("Invalid flag.")
         }
 
-        // remove first arg or return if args will be empty
-        if (args.length == 1) {
-            return [ul, minArgs, args]
+        // remove first arg or return if sArgs.argsList will be empty
+        if (sArgs.argsList.length == 1) {
+            return [ul, minArgs]
         }
         else {
-            args = args[1..-1]
+            sArgs.argsList = sArgs.argsList[1..-1]
         }
     }
-    return [ul, minArgs, args]
+    return [ul, minArgs]
 }
 
-private String getFirstArg(String[] args) {
-    for (int i = 0; i < args.length; i++) {
-        if (!args[i].startsWith("--")) {
-            return args[i];
-        }
+private LoadedCommand setCommandFields(LoadedCommand command, String[] argsList, UserLevel execUL, int minArgs) {
+    command.setName(argsList[0])
+    command.setResponse(String.join(" ", argsList[1..-1]));
+    if (execUL != UserLevel.IGNORED) {
+        command.setExecUserLevel(execUL);
     }
-    return null;
+    if (minArgs != -1) {
+        command.setMinArgs(minArgs);
+    }
+    return command;
 }
 
-private boolean enoughArgs(int minArgs, String[] args) {
-    if (args.length < minArgs) {
-        // TODO run ~%general:insufficient.args
+private boolean enoughArgs(int minArgs, ScriptArgs sArgs) {
+    if (sArgs.argsList.length < minArgs) {
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
     return true;
