@@ -84,7 +84,7 @@ private boolean set(ScriptArgs sArgs) {
 
         // Check UL to modify
         if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
-            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify alias '" + sArgs.argsList[0] + "'";
+            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify alias '" + sArgs.argsList[0] + "' ";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
         }
@@ -111,7 +111,7 @@ private boolean remove(ScriptArgs sArgs) {
     }
     LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "'";
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
@@ -160,9 +160,9 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr;
         if (enabled) {
-            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " enable alias '" + sArgs.argsList[0] + "'";
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " enable alias '" + sArgs.argsList[0] + "' ";
         } else {
-            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " disable alias '" + sArgs.argsList[0] + "'";
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " disable alias '" + sArgs.argsList[0] + "' ";
         }
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
