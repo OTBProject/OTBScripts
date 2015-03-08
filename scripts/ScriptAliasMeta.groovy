@@ -111,7 +111,7 @@ private boolean remove(ScriptArgs sArgs) {
     }
     LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
