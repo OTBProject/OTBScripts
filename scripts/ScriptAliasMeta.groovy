@@ -42,7 +42,7 @@ public boolean execute(ScriptArgs sArgs) {
             return remove(sArgs);
         case "list":
             return list(sArgs.db, sArgs.destinationChannel);
-        case "getCommand":
+        case "getcommand":
             return getCommand(sArgs);
         case "enable":
             return setEnabled(sArgs, true);
