@@ -13,6 +13,8 @@ public class ResponseCmd {
     public static final String ADD_ALREADY_EXISTS = "~%alias.add.already.exists";
     public static final String SET_SUCCESS = "~%alias.success";
     public static final String REMOVE_SUCCESS = "~%unalias.success";
+    public static final String ENABLED = "~%alias.enabled";
+    public static final String DISABLED = "~%alias.disabled";
 }
 
 public boolean execute(ScriptArgs sArgs) {
@@ -42,6 +44,10 @@ public boolean execute(ScriptArgs sArgs) {
             return list(sArgs.db, sArgs.destinationChannel);
         case "getCommand":
             return getCommand(sArgs);
+        case "enable":
+            return setEnabled(sArgs, true);
+        case "disable":
+            return setEnabled(sArgs, false);
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + action;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -105,7 +111,7 @@ private boolean remove(ScriptArgs sArgs) {
     }
     LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";;
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
@@ -136,6 +142,40 @@ private boolean getCommand(ScriptArgs sArgs) {
     LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0])
     String raw = "'" + sArgs.argsList[0] + "' is aliased to: " + alias.getCommand();
     ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
+    if (!enoughArgs(1, sArgs)) {
+        return false;
+    }
+
+    if (!Alias.exists(sArgs.db, sArgs.argsList[0])) {
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
+    // Check user level
+    if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
+        String commandStr;
+        if (enabled) {
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " enable alias '" + sArgs.argsList[0] + "'";
+        } else {
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " disable alias '" + sArgs.argsList[0] + "'";
+        }
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    alias.setEnabled(enabled);
+    CommandLoader.addAliasFromLoadedAlias(sArgs.db, alias);
+    String commandStr;
+    if (enabled) {
+        commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
+    } else {
+        commandStr = ResponseCmd.DISABLED + " " + sArgs.argsList[0];
+    }
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
 }
 

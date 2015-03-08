@@ -19,6 +19,8 @@ public class ResponseCmd {
     public static final String SET_SUCCESS = "~%command.set.success";
     public static final String SET_IS_ALIAS = "~%command.set.is.alias";
     public static final String REMOVE_SUCCESS = "~%command.remove.success";
+    public static final String ENABLED = "~%command.enabled";
+    public static final String DISABLED = "~%command.disabled";
 }
 
 public boolean execute(ScriptArgs sArgs) {
@@ -49,6 +51,10 @@ public boolean execute(ScriptArgs sArgs) {
             return list(sArgs.db, sArgs.destinationChannel);
         case "raw":
             return raw(sArgs);
+        case "enable":
+            return setEnabled(sArgs, true);
+        case "disable":
+            return setEnabled(sArgs, false);
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + action;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -151,7 +157,7 @@ private boolean remove(ScriptArgs sArgs) {
     }
     LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getUserLevelModifyingUL().getValue()) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";;
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
@@ -199,6 +205,40 @@ private boolean raw(ScriptArgs sArgs) {
         raw += ": " + command.getResponse();
     }
     ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
+    return true;
+}
+
+private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
+    if (!enoughArgs(1, sArgs)) {
+        return false;
+    }
+
+    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    // Check user level
+    if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
+        String commandStr;
+        if (enabled) {
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " enable command '" + sArgs.argsList[0] + "'";
+        } else {
+            commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " disable command '" + sArgs.argsList[0] + "'";
+        }
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+    command.setEnabled(enabled);
+    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    String commandStr;
+    if (enabled) {
+        commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
+    } else {
+        commandStr = ResponseCmd.DISABLED + " " + sArgs.argsList[0];
+    }
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
 }
 
