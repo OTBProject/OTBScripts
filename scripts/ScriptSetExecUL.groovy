@@ -7,14 +7,21 @@ import com.github.otbproject.otbproject.users.UserLevel
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
+public class ResponseCmd {
+    public static final String GENERAL_DOES_NOT_EXIST = "~%command.general:does.not.exist";
+    public static final String SET_EXEC_UL_SUCCESS = "~%command.set.exec.ul.success"
+}
+
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 2) {
-        // TODO run ~%general:insufficient.args
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
     if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
-        // TODO run ~%command.general:does.not.exist
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
     UserLevel ul;
@@ -63,6 +70,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     command.setExecUserLevel(ul);
     CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
-    // TODO run some success command
+    String commandStr = ResponseCmd.SET_EXEC_UL_SUCCESS + " " + sArgs.argsList[0];
+    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
 }
