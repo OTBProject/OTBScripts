@@ -321,6 +321,7 @@ private getFlags(ScriptArgs sArgs) throws Exception {
         }
         else {
             sArgs.argsList = sArgs.argsList[1..-1]
+            firstArg = sArgs.argsList[0];
         }
     }
     return [ul, minArgs]
