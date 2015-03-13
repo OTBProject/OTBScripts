@@ -11,7 +11,7 @@ public class ResponseCmd {
 
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+        String commandStr = ResponseCmd.BOT_LEAVE_NEED_NAME;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
@@ -21,7 +21,5 @@ public boolean execute(ScriptArgs sArgs) {
         return true;
     }
 
-    String commandStr = ResponseCmd.BOT_LEAVE_NEED_NAME;
-    ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return false;
 }
