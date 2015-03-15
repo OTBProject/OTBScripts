@@ -1,7 +1,6 @@
 import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.commands.Alias
 import com.github.otbproject.otbproject.commands.Command
-import com.github.otbproject.otbproject.commands.loader.CommandLoader
 import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
 import com.github.otbproject.otbproject.commands.loader.LoadedCommand
 import com.github.otbproject.otbproject.database.DatabaseWrapper
@@ -84,7 +83,7 @@ private boolean add(ScriptArgs sArgs) {
 
     LoadedCommand command = DefaultCommandGenerator.createDefaultCommand();
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    Command.addCommandFromLoadedCommand(sArgs.db, command);
     // Check if command is an alias
     String commandStr;
     if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
@@ -134,7 +133,7 @@ private boolean set(ScriptArgs sArgs) {
     }
 
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    Command.addCommandFromLoadedCommand(sArgs.db, command);
     // Check if command is an alias
     String commandStr;
     if (Alias.exists(sArgs.db, sArgs.argsList[0])) {

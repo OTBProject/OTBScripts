@@ -1,5 +1,4 @@
 import com.github.otbproject.otbproject.commands.Command
-import com.github.otbproject.otbproject.commands.loader.CommandLoader
 import com.github.otbproject.otbproject.commands.loader.LoadedCommand
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -69,7 +68,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     command.setExecUserLevel(ul);
-    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    Command.addCommandFromLoadedCommand(sArgs.db, command);
     String commandStr = ResponseCmd.SET_EXEC_UL_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
