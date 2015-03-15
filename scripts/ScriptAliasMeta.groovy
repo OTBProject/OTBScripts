@@ -1,5 +1,4 @@
 import com.github.otbproject.otbproject.commands.Alias
-import com.github.otbproject.otbproject.commands.loader.CommandLoader
 import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
 import com.github.otbproject.otbproject.commands.loader.LoadedAlias
 import com.github.otbproject.otbproject.database.DatabaseWrapper
@@ -67,7 +66,7 @@ private boolean add(ScriptArgs sArgs) {
 
     LoadedAlias alias = DefaultCommandGenerator.createDefaultAlias();
     alias = setAliasFields(alias, sArgs.argsList);
-    CommandLoader.addAliasFromLoadedAlias(sArgs.db, alias);
+    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
     commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -94,7 +93,7 @@ private boolean set(ScriptArgs sArgs) {
     }
 
     alias = setAliasFields(alias, sArgs.argsList);
-    CommandLoader.addAliasFromLoadedAlias(sArgs.db, alias);
+    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
     String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
