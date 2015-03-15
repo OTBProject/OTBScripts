@@ -6,6 +6,10 @@ import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
+public class ResponseCmd {
+    public static final String JOIN_MODE_SET = "~%join.mode.set";
+}
+
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
@@ -17,14 +21,20 @@ public boolean execute(ScriptArgs sArgs) {
         case "whitelist":
             App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.WHITELIST);
             APIConfig.writeBotConfig();
+            String commandStr = ResponseCmd.JOIN_MODE_SET + " WHITELIST";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "blacklist":
             App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.BLACKLIST);
             APIConfig.writeBotConfig();
+            String commandStr = ResponseCmd.JOIN_MODE_SET + " BLACKLIST";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "none":
             App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.NONE);
             APIConfig.writeBotConfig();
+            String commandStr = ResponseCmd.JOIN_MODE_SET + " NONE";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];

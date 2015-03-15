@@ -6,8 +6,13 @@ import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
+public class ResponseCmd {
+    public static final String ADD_SUCCESS = "~%whitelist.add.success";
+    public static final String REMOVE_SUCCESS = "~%whitelist.remove.success";
+}
+
 public boolean execute(ScriptArgs sArgs) {
-    if (sArgs.argsList.length < 2) {
+    if (sArgs.argsList.length < 1) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -15,17 +20,31 @@ public boolean execute(ScriptArgs sArgs) {
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":
+            if (sArgs.argsList.length < 2) {
+                String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+                ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+                return false;
+            }
             BotConfigHelper.addToWhitelist(App.bot.configManager.getBotConfig(), sArgs.argsList[1].toLowerCase());
             APIConfig.writeBotConfig();
+            String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "remove":
+            if (sArgs.argsList.length < 2) {
+                String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+                ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+                return false;
+            }
             BotConfigHelper.removeFromWhitelist(App.bot.configManager.getBotConfig(), sArgs.argsList[1].toLowerCase());
             APIConfig.writeBotConfig();
+            String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "list":
             ArrayList<String> list = new ArrayList<String>(App.bot.configManager.getBotConfig().whitelist);
             Collections.sort(list);
-            ScriptHelper.sendMessage(sArgs.destinationChannel, "Whitelist: " + list.toString(), MessagePriority.DEFAULT);
+            ScriptHelper.sendMessage(sArgs.destinationChannel, "Whitelist: " + list.toString(), MessagePriority.HIGH);
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];

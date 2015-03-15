@@ -16,7 +16,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     if (sArgs.argsList[0].equalsIgnoreCase(App.bot.getNick())) {
-        APIChannel.leave(sArgs.argsList[0]);
+        APIChannel.leave(sArgs.channel);
         return true;
     }
 
