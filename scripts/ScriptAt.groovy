@@ -19,7 +19,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    String channelName = sArgs.argsList[0];
+    String channelName = sArgs.argsList[0].toLowerCase();
     Channel channel = APIChannel.get(channelName);
 
     if (!APIChannel.in(channelName)) {
