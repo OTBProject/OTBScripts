@@ -11,6 +11,11 @@ public class ResponseCmd {
 public boolean execute(ScriptArgs sArgs) {
     boolean success =  APIChannel.join(sArgs.user);
     if (success) {
+        // Enable bot in case it was disabled before it was removed
+        // If somehow the channel doesn't exist and this NPE's, it will crash,
+        //  which it probably should do anyway if the channel doesn't exist
+        APIChannel.get(sArgs.user).getConfig().setEnabled(true);
+
         ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, App.bot.getNick(), sArgs.user, sArgs.user, MessagePriority.HIGH);
     }
     return success;
