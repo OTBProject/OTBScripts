@@ -28,7 +28,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    UserLevel ul = ULUtil.getUserLevel(channel.getDatabaseWrapper(), channelName, sArgs.user);
+    UserLevel ul = ULUtil.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
     channel.receiveQueue.add(packagedMessage);
     return true;
