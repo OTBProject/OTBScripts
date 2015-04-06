@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.App
+import com.github.otbproject.otbproject.api.APIBot
 import com.github.otbproject.otbproject.api.APIChannel
 import com.github.otbproject.otbproject.api.APIConfig
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -18,7 +18,7 @@ public boolean execute(ScriptArgs sArgs) {
         APIConfig.getChannelConfig(sArgs.user).setEnabled(true);
         APIConfig.writeChannelConfig(sArgs.user);
 
-        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, App.bot.getNick(), sArgs.user, sArgs.user, MessagePriority.HIGH);
+        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, APIBot.getBot().getUserName(), sArgs.user, sArgs.user, MessagePriority.HIGH);
     }
     return success;
 }
