@@ -8,24 +8,20 @@ import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
 public class ResponseCmd {
-    public static final String RANDOM_QUOTE_FAILURE = "~%quote.random.failure";
-
+    public static final String ADD_ALREADY_EXISTS = "`%quote.add.already.exists";
+    public static final String ADD_SUCCESS = "~%quote.add.success";
+    public static final String REMOVE_SUCCESS = "~%quote.remove.success";
+    public static final String DOES_NOT_EXIST = "~%quote.does.not.exist";
 }
 
 public boolean execute(ScriptArgs sArgs) {
-    SQLiteQuoteWrapper quoteDb = APIChannel.get(sArgs.channel).getQuoteDatabaseWrapper();
-
-    if (sArgs.argsList.length == 0) {
-        Quote quote = Quotes.getRandomQuote(quoteDb);
-        if (quote == null) {
-            // TODO some sort of error
-            return false;
-        } else {
-            ScriptHelper.sendMessage(sArgs.destinationChannel, quote.getText(), MessagePriority.DEFAULT);
-            return true;
-        }
+    if (sArgs.argsList.length < 1) {
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
     }
 
+    SQLiteQuoteWrapper quoteDb = APIChannel.get(sArgs.channel).getQuoteDatabaseWrapper();
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":
@@ -40,8 +36,12 @@ public boolean execute(ScriptArgs sArgs) {
         case "listids":
         case "ids":
             return list(quoteDb, sArgs.destinationChannel);
+        case "getid":
+            return getId(quoteDb, sArgs);
         default:
-            return tryId(quoteDb, sArgs);
+            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
     }
 }
 
@@ -54,18 +54,21 @@ private boolean add(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 
     String quoteText = String.join(" ", sArgs.argsList[1..-1]);
     if (Quotes.exists(db, quoteText)) {
-        // TODO quote already exists
+        String commandStr = ResponseCmd.ADD_ALREADY_EXISTS;
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     } else {
         Quote quote = new Quote();
         quote.setText(quoteText);
         boolean success = Quotes.addQuoteFromObj(db, quote);
         if (success) {
-            // TODO some success statement
             int id = Quotes.get(db, quoteText).getId();
+            String commandStr = ResponseCmd.ADD_SUCCESS + " " + id;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         } else {
-            // TODO some failure statement
+            String commandStr = BuiltinCommands.GENERAL_UNKNOWN_FAILURE + " " + sArgs.commandName + " adding a quote";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
         }
     }
@@ -80,12 +83,19 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 
     try {
         int id = Integer.valueOf(sArgs.argsList[1]);
-        boolean success = Quotes.remove(db, id);
+        if (!Quotes.existsAndNotRemoved(db, id)) {
+            String commandStr = ResponseCmd.DOES_NOT_EXIST + " with the ID '" + id + "'";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
+        }
+            boolean success = Quotes.remove(db, id);
         if (success) {
-            // TODO some success statement
+            String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + id;
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         } else {
-            // TODO some failure statement
+            String commandStr = BuiltinCommands.GENERAL_UNKNOWN_FAILURE + " " + sArgs.commandName + " removing a quote";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
         }
     } catch (Exception ignored) {
@@ -103,20 +113,22 @@ private boolean list(SQLiteQuoteWrapper db, String destinationChannel) {
     return true;
 }
 
-private boolean tryId(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
-    try {
-        int id = Integer.valueOf(sArgs.argsList[0]);
-        Quote quote = Quotes.get(db, id);
-        if (quote == null) {
-            // TODO some failure message
-            return false;
-        } else {
-            ScriptHelper.sendMessage(sArgs.destinationChannel, quote.getText(), MessagePriority.DEFAULT);
-            return true;
-        }
-    } catch (Exception ignored) {
-        String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
+private boolean getId(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
+    if (sArgs.argsList.length < 2) {
+        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
+    }
+
+    Quote quote = Quotes.get(db, String.join(" ", sArgs.argsList[1]));
+    if (quote == null) {
+        String commandStr = ResponseCmd.DOES_NOT_EXIST + " with the given text";
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    } else {
+        int id = quote.getId();
+        String asString = "Quote ID: " + id;
+        ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
+        return true;
     }
 }
