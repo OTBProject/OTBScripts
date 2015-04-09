@@ -8,7 +8,7 @@ import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
 public class ResponseCmd {
-    public static final String ADD_ALREADY_EXISTS = "`%quote.add.already.exists";
+    public static final String ADD_ALREADY_EXISTS = "~%quote.add.already.exists";
     public static final String ADD_SUCCESS = "~%quote.add.success";
     public static final String REMOVE_SUCCESS = "~%quote.remove.success";
     public static final String DOES_NOT_EXIST = "~%quote.does.not.exist";
@@ -39,7 +39,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "getid":
             return getId(quoteDb, sArgs);
         default:
-            String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
+            String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
     }
@@ -84,7 +84,7 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
     try {
         int id = Integer.valueOf(sArgs.argsList[1]);
         if (!Quotes.existsAndNotRemoved(db, id)) {
-            String commandStr = ResponseCmd.DOES_NOT_EXIST + " with the ID '" + id + "'";
+            String commandStr = ResponseCmd.DOES_NOT_EXIST + " with ID '" + id + "'";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
         }
@@ -120,7 +120,7 @@ private boolean getId(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
         return false;
     }
 
-    Quote quote = Quotes.get(db, String.join(" ", sArgs.argsList[1]));
+    Quote quote = Quotes.get(db, String.join(" ", sArgs.argsList[1..-1]));
     if (quote == null) {
         String commandStr = ResponseCmd.DOES_NOT_EXIST + " with the given text";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
