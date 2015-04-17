@@ -1,4 +1,3 @@
-import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.api.APIConfig
 import com.github.otbproject.otbproject.config.BotConfigHelper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
