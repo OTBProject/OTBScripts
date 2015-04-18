@@ -230,7 +230,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     command.setEnabled(enabled);
-    CommandLoader.addCommandFromLoadedCommand(sArgs.db, command);
+    Command.addCommandFromLoadedCommand(sArgs.db, command);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
