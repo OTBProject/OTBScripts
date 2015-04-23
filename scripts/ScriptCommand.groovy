@@ -218,6 +218,13 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    // Prevent disabling self
+    if (command.getScript().equals("ScriptCommand.groovy")) {
+        String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
+    }
+
     // Check user level
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
         String commandStr;
