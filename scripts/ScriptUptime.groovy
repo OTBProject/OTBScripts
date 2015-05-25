@@ -18,7 +18,7 @@ public boolean execute(ScriptArgs sArgs) {
     int hours = calendar.get(Calendar.HOUR) - 1;
     int mins = calendar.get(Calendar.MINUTE);
     int secs = calendar.get(Calendar.SECOND);
-    String response = days + (days > 1 ? "days" : "day") + ", " + hours + (hours > 1 ? "hours" : "hour") + ", " + mins + (mins > 1 ? "minutes" : "minute") + ", " + secs + (secs > 1 ? "seconds" : "second");
+    String response = days + (days == 1 ? " day" : " days") + ", " + hours + (hours == 1 ? " hour" : " hours") + ", " + mins + (mins == 1 ? " minute" : " minutes") + ", " + secs + (secs == 1 ? " second" : " seconds");
     ScriptHelper.sendMessage(sArgs.destinationChannel, response, MessagePriority.HIGH)
 }
 
