@@ -18,7 +18,7 @@ public boolean execute(ScriptArgs sArgs) {
         APIConfig.getChannelConfig(sArgs.user).setEnabled(true);
         APIConfig.writeChannelConfig(sArgs.user);
 
-        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, APIBot.getBot().getUserName(), sArgs.user, sArgs.user, MessagePriority.HIGH);
+        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, APIBot.getBot().getUserName(), APIBot.getBot().getUserName(), sArgs.user, MessagePriority.HIGH);
     }
     return success;
 }

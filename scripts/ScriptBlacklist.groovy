@@ -1,4 +1,3 @@
-import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.api.APIConfig
 import com.github.otbproject.otbproject.config.BotConfigHelper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -25,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.addToBlacklist(App.bot.configManager.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            BotConfigHelper.addToBlacklist(APIConfig.getBotConfig(), sArgs.argsList[1].toLowerCase());
             APIConfig.writeBotConfig();
             String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -36,13 +35,13 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.removeFromBlacklist(App.bot.configManager.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            BotConfigHelper.removeFromBlacklist(APIConfig.getBotConfig(), sArgs.argsList[1].toLowerCase());
             APIConfig.writeBotConfig();
             String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "list":
-            ArrayList<String> list = new ArrayList<String>(App.bot.configManager.getBotConfig().blacklist);
+            ArrayList<String> list = new ArrayList<String>(APIConfig.getBotConfig().blacklist);
             Collections.sort(list);
             ScriptHelper.sendMessage(sArgs.destinationChannel, "Blacklist: " + list.toString(), MessagePriority.HIGH);
             return true;

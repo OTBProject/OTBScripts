@@ -1,4 +1,3 @@
-import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.api.APIConfig
 import com.github.otbproject.otbproject.config.ChannelJoinSetting
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -19,19 +18,19 @@ public boolean execute(ScriptArgs sArgs) {
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "whitelist":
-            App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.WHITELIST);
+            APIConfig.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.WHITELIST);
             APIConfig.writeBotConfig();
             String commandStr = ResponseCmd.JOIN_MODE_SET + " WHITELIST";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "blacklist":
-            App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.BLACKLIST);
+            APIConfig.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.BLACKLIST);
             APIConfig.writeBotConfig();
             String commandStr = ResponseCmd.JOIN_MODE_SET + " BLACKLIST";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "none":
-            App.bot.configManager.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.NONE);
+            APIConfig.getBotConfig().setChannelJoinSetting(ChannelJoinSetting.NONE);
             APIConfig.writeBotConfig();
             String commandStr = ResponseCmd.JOIN_MODE_SET + " NONE";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);

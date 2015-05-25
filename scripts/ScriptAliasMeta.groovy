@@ -167,7 +167,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     alias.setEnabled(enabled);
-    CommandLoader.addAliasFromLoadedAlias(sArgs.db, alias);
+    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
