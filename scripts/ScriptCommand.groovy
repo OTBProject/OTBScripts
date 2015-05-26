@@ -12,6 +12,9 @@ import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 import org.apache.logging.log4j.Level
 
+import java.util.function.Predicate
+import java.util.stream.Collectors
+
 public class ResponseCmd {
     public static final String GENERAL_DOES_NOT_EXIST = "~%command.general:does.not.exist";
     public static final String ADD_ALREADY_EXISTS = "~%command.add.already.exists";
@@ -110,10 +113,8 @@ private boolean set(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedCommand command
-    if (Command.exists(sArgs.db, sArgs.argsList[0])) {
-        command =  Command.get(sArgs.db, sArgs.argsList[0])
-
+    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    if (command != null) {
         // Check UL to modify response
         if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
             String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify response of command '" + sArgs.argsList[0] + "' ";
@@ -167,13 +168,8 @@ private boolean remove(ScriptArgs sArgs) {
 }
 
 private boolean list(DatabaseWrapper db, String destinationChannel) {
-    ArrayList<String> list = Command.getCommands(db);
-    for (Iterator<String> i = list.iterator(); i.hasNext();) {
-        if (i.next().startsWith("~%")) {
-            i.remove();
-        }
-    }
-    Collections.sort(list);
+    // Collect calls and lambda(ish)!
+    List<String> list = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
     String asString = "Commands: " + list.toString();
     ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
     return true;

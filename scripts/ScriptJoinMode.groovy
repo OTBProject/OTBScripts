@@ -11,8 +11,8 @@ public class ResponseCmd {
 
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
-        String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
-        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        String msg = "Current join mode: " + APIConfig.getBotConfig().getChannelJoinSetting().toString();
+        ScriptHelper.sendMessage(sArgs.destinationChannel, msg, MessagePriority.HIGH);
         return false;
     }
 

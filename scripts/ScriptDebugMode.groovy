@@ -6,7 +6,7 @@ import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
 public class ResponseCmd {
-    public static final String UNSILENCED = "~%bot.unsilence.success";
+    public static final String DEBUG_MODE_SET = "~%channel.debug.mode.set";
 }
 
 public boolean execute(ScriptArgs sArgs) {
@@ -21,15 +21,16 @@ public boolean execute(ScriptArgs sArgs) {
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            config.setSilenced(true);
+            config.setDebug(true);
             APIConfig.writeChannelConfig(sArgs.channel);
-            channel.sendQueue.clear();
+            String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "off":
         case "false":
-            config.setSilenced(false);
+            config.setDebug(false);
             APIConfig.writeChannelConfig(sArgs.channel);
-            String commandStr = ResponseCmd.UNSILENCED;
+            String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         default:
@@ -37,4 +38,5 @@ public boolean execute(ScriptArgs sArgs) {
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
     }
+
 }
