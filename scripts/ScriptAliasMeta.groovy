@@ -1,3 +1,4 @@
+import com.github.otbproject.otbproject.api.APIBot
 import com.github.otbproject.otbproject.commands.Alias
 import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
 import com.github.otbproject.otbproject.commands.loader.LoadedAlias
@@ -6,6 +7,8 @@ import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
+
+import java.util.stream.Collectors
 
 public class ResponseCmd {
     public static final String GENERAL_DOES_NOT_EXIST = "~%alias.general:does.not.exist";
@@ -40,7 +43,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "rm":
             return remove(sArgs);
         case "list":
-            return list(sArgs.db, sArgs.destinationChannel);
+            return list(sArgs);
         case "getcommand":
             return getCommand(sArgs);
         case "enable":
@@ -120,11 +123,16 @@ private boolean remove(ScriptArgs sArgs) {
     return true;
 }
 
-private boolean list(DatabaseWrapper db, String destinationChannel) {
-    ArrayList<String> list = Alias.getAliases(db);
-    Collections.sort(list);
-    String asString = "Aliases: " + list.toString();
-    ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
+private boolean list(ScriptArgs sArgs) {
+    String asString = "";
+    if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
+        DatabaseWrapper db = APIBot.getBot().getBotDB();
+        List<String> list = Alias.getAliases(db).stream().sorted().collect(Collectors.toList());
+        asString = "Bot Aliases: " + list.toString() + "; ";
+    }
+    List<String> list = Alias.getAliases(sArgs.db).stream().sorted().collect(Collectors.toList());
+    asString += "Aliases: " + list.toString();
+    ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }
 
