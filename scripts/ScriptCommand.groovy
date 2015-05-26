@@ -1,4 +1,5 @@
 import com.github.otbproject.otbproject.App
+import com.github.otbproject.otbproject.api.APIBot
 import com.github.otbproject.otbproject.commands.Alias
 import com.github.otbproject.otbproject.commands.Command
 import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
@@ -50,7 +51,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "rm":
             return remove(sArgs);
         case "list":
-            return list(sArgs.db, sArgs.destinationChannel);
+            return list(sArgs);
         case "raw":
             return raw(sArgs);
         case "enable":
@@ -167,11 +168,17 @@ private boolean remove(ScriptArgs sArgs) {
     return true;
 }
 
-private boolean list(DatabaseWrapper db, String destinationChannel) {
+private boolean list(ScriptArgs sArgs) {
+    String asString = "";
+    if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
+        DatabaseWrapper db = APIBot.getBot().getBotDB();
+        List<String> list = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
+        asString = "Bot Commands: " + list.toString() + "; ";
+    }
     // Collect calls and lambda(ish)!
-    List<String> list = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
-    String asString = "Commands: " + list.toString();
-    ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
+    List<String> list = Command.getCommands(sArgs.db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
+    asString += "Commands: " + list.toString();
+    ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }
 
