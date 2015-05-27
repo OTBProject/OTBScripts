@@ -106,7 +106,7 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 }
 
 private boolean list(SQLiteQuoteWrapper db, String destinationChannel) {
-    ArrayList<Integer> list = Quotes.getQuoteIds(db);
+    List<Integer> list = Quotes.getQuoteIds(db);
     Collections.sort(list);
     String asString = "Quote IDs: " + list.toString();
     ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
