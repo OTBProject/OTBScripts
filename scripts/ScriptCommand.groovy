@@ -2,7 +2,7 @@ import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.api.APIBot
 import com.github.otbproject.otbproject.commands.Alias
 import com.github.otbproject.otbproject.commands.Command
-import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
+
 import com.github.otbproject.otbproject.commands.loader.LoadedCommand
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -85,7 +85,7 @@ private boolean add(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedCommand command = DefaultCommandGenerator.createDefaultCommand();
+    LoadedCommand command = new LoadedCommand();
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
     Command.addCommandFromLoadedCommand(sArgs.db, command);
     // Check if command is an alias
@@ -131,7 +131,7 @@ private boolean set(ScriptArgs sArgs) {
         command.setCount(0);
     }
     else {
-        command = DefaultCommandGenerator.createDefaultCommand();
+        command = new LoadedCommand();
     }
 
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
@@ -172,12 +172,12 @@ private boolean list(ScriptArgs sArgs) {
     String asString = "";
     if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
         DatabaseWrapper db = APIBot.getBot().getBotDB();
-        List<String> list = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
-        asString = "Bot Commands: " + list.toString() + "; ";
+        String cmdString = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.joining(", ", "[", "]"));
+        asString = "Bot Commands: " + cmdString + "; ";
     }
     // Collect calls and lambda(ish)!
-    List<String> list = Command.getCommands(sArgs.db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
-    asString += "Commands: " + list.toString();
+    String cmdString = Command.getCommands(sArgs.db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.joining(", ", "[", "]"));
+    asString += "Commands: " + cmdString
     ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }

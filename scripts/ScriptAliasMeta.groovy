@@ -1,6 +1,6 @@
 import com.github.otbproject.otbproject.api.APIBot
 import com.github.otbproject.otbproject.commands.Alias
-import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
+
 import com.github.otbproject.otbproject.commands.loader.LoadedAlias
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -67,7 +67,7 @@ private boolean add(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedAlias alias = DefaultCommandGenerator.createDefaultAlias();
+    LoadedAlias alias = new LoadedAlias();
     alias = setAliasFields(alias, sArgs.argsList);
     Alias.addAliasFromLoadedAlias(sArgs.db, alias);
     commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
@@ -92,7 +92,7 @@ private boolean set(ScriptArgs sArgs) {
         }
     }
     else {
-        alias = DefaultCommandGenerator.createDefaultAlias();
+        alias = new LoadedAlias();
     }
 
     alias = setAliasFields(alias, sArgs.argsList);
@@ -127,11 +127,9 @@ private boolean list(ScriptArgs sArgs) {
     String asString = "";
     if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
         DatabaseWrapper db = APIBot.getBot().getBotDB();
-        List<String> list = Alias.getAliases(db).stream().sorted().collect(Collectors.toList());
-        asString = "Bot Aliases: " + list.toString() + "; ";
+        asString = "Bot Aliases: " + Alias.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")); + "; ";
     }
-    List<String> list = Alias.getAliases(sArgs.db).stream().sorted().collect(Collectors.toList());
-    asString += "Aliases: " + list.toString();
+    asString += "Aliases: " + Alias.getAliases(sArgs.db).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
     ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }

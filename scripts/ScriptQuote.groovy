@@ -7,6 +7,9 @@ import com.github.otbproject.otbproject.quotes.Quotes
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
+import java.util.function.Function
+import java.util.stream.Collectors
+
 public class ResponseCmd {
     public static final String ADD_ALREADY_EXISTS = "~%quote.add.already.exists";
     public static final String ADD_SUCCESS = "~%quote.add.success";
@@ -106,9 +109,7 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 }
 
 private boolean list(SQLiteQuoteWrapper db, String destinationChannel) {
-    ArrayList<Integer> list = Quotes.getQuoteIds(db);
-    Collections.sort(list);
-    String asString = "Quote IDs: " + list.toString();
+    String asString = "Quote IDs: " + Quotes.getQuoteIds(db).stream().sorted().map({id -> id.toString()} as Function).collect(Collectors.joining(",", "[", "]"));
     ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }
