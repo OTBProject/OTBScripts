@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.commands.Command
+import com.github.otbproject.otbproject.commands.Commands
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -16,19 +16,19 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Commands.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
-    if (sArgs.userLevel.getValue() < Command.get(sArgs.db, sArgs.argsList[0]).modifyingUserLevels.getResponseModifyingUL().getValue()) {
+    if (sArgs.userLevel.getValue() < Commands.get(sArgs.db, sArgs.argsList[0]).modifyingUserLevels.getResponseModifyingUL().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " reset count of command '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
-    Command.resetCount(sArgs.db, sArgs.argsList[0]);
+    Commands.resetCount(sArgs.db, sArgs.argsList[0]);
     String commandStr = ResponseCmd.RESET_COUNT_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;

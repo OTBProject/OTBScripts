@@ -1,9 +1,9 @@
 import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.api.APIBot
-import com.github.otbproject.otbproject.commands.Alias
-import com.github.otbproject.otbproject.commands.Command
+import com.github.otbproject.otbproject.commands.Aliases
+import com.github.otbproject.otbproject.commands.Commands
 import com.github.otbproject.otbproject.commands.loader.DefaultCommandGenerator
-import com.github.otbproject.otbproject.commands.loader.LoadedCommand
+import com.github.otbproject.otbproject.commands.Command
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.CommandProcessor
@@ -79,18 +79,18 @@ private boolean add(ScriptArgs sArgs) {
     if (!enoughArgs(2, sArgs)) {
         return false;
     }
-    if (Command.exists(sArgs.db, sArgs.argsList[0])) {
+    if (Commands.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
-    LoadedCommand command = DefaultCommandGenerator.createDefaultCommand();
+    Command command = DefaultCommandGenerator.createDefaultCommand();
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    Command.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromLoadedCommand(sArgs.db, command);
     // Check if command is an alias
     String commandStr;
-    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         commandStr = ResponseCmd.SET_IS_ALIAS + " " + sArgs.argsList[0];
     } else {
         commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
@@ -114,7 +114,7 @@ private boolean set(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    Command command = Commands.get(sArgs.db, sArgs.argsList[0]);
     if (command != null) {
         // Check UL to modify response
         if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
@@ -135,10 +135,10 @@ private boolean set(ScriptArgs sArgs) {
     }
 
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    Command.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromLoadedCommand(sArgs.db, command);
     // Check if command is an alias
     String commandStr;
-    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         commandStr = ResponseCmd.SET_IS_ALIAS + " " + sArgs.argsList[0];
     } else {
         commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
@@ -151,18 +151,18 @@ private boolean remove(ScriptArgs sArgs) {
     if (!enoughArgs(1, sArgs)) {
         return false;
     }
-    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Commands.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    Command command = Commands.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getUserLevelModifyingUL().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Command.remove(sArgs.db, sArgs.argsList[0]);
+    Commands.remove(sArgs.db, sArgs.argsList[0]);
     String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -172,11 +172,11 @@ private boolean list(ScriptArgs sArgs) {
     String asString = "";
     if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
         DatabaseWrapper db = APIBot.getBot().getBotDB();
-        List<String> list = Command.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
+        List<String> list = Commands.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
         asString = "Bot Commands: " + list.toString() + "; ";
     }
     // Collect calls and lambda(ish)!
-    List<String> list = Command.getCommands(sArgs.db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
+    List<String> list = Commands.getCommands(sArgs.db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.toList());
     asString += "Commands: " + list.toString();
     ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
@@ -194,12 +194,12 @@ private boolean raw(ScriptArgs sArgs) {
     }
     commandName = commandName.split(" ")[0];
 
-    if (!Command.exists(sArgs.db, commandName)) {
+    if (!Commands.exists(sArgs.db, commandName)) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedCommand command = Command.get(sArgs.db, commandName)
+    Command command = Commands.get(sArgs.db, commandName)
     raw += "The raw response for '" + commandName + "' is";
     if ((command.getScript() != null) && (command.getScript() != "null")) {
         raw += " ignored because '" + commandName + "' is a script command.";
@@ -215,12 +215,12 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
 
-    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Commands.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    Command command = Commands.get(sArgs.db, sArgs.argsList[0]);
     // Prevent disabling self
     if (command.getScript().equals("ScriptCommand.groovy")) {
         String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
@@ -240,7 +240,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     command.setEnabled(enabled);
-    Command.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromLoadedCommand(sArgs.db, command);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
@@ -336,7 +336,7 @@ private getFlags(ScriptArgs sArgs) throws Exception {
     return [ul, minArgs]
 }
 
-private LoadedCommand setCommandFields(LoadedCommand command, String[] argsList, UserLevel execUL, int minArgs) {
+private Command setCommandFields(Command command, String[] argsList, UserLevel execUL, int minArgs) {
     command.setName(argsList[0])
     command.setResponse(String.join(" ", argsList[1..-1]));
     if (execUL != UserLevel.IGNORED) {
