@@ -1,7 +1,6 @@
 import com.github.otbproject.otbproject.api.APIBot
+import com.github.otbproject.otbproject.commands.Aliases
 import com.github.otbproject.otbproject.commands.Alias
-
-import com.github.otbproject.otbproject.commands.loader.LoadedAlias
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -61,15 +60,15 @@ private boolean add(ScriptArgs sArgs) {
     if (!enoughArgs(2, sArgs)) {
         return false;
     }
-    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
-    LoadedAlias alias = new LoadedAlias();
+    Alias alias = new Alias();
     alias = setAliasFields(alias, sArgs.argsList);
-    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
     commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -80,9 +79,9 @@ private boolean set(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedAlias alias;
-    if (Alias.exists(sArgs.db, sArgs.argsList[0])) {
-        alias = Alias.get(sArgs.db, sArgs.argsList[0])
+    Alias alias;
+    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
+        alias = Aliases.get(sArgs.db, sArgs.argsList[0])
 
         // Check UL to modify
         if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
@@ -92,11 +91,11 @@ private boolean set(ScriptArgs sArgs) {
         }
     }
     else {
-        alias = new LoadedAlias();
+        alias = new Alias();
     }
 
     alias = setAliasFields(alias, sArgs.argsList);
-    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
     String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -106,18 +105,18 @@ private boolean remove(ScriptArgs sArgs) {
     if (!enoughArgs(1, sArgs)) {
         return false;
     }
-    if (!Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
+    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias.remove(sArgs.db, sArgs.argsList[0]);
+    Aliases.remove(sArgs.db, sArgs.argsList[0]);
     String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -127,9 +126,9 @@ private boolean list(ScriptArgs sArgs) {
     String asString = "";
     if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
         DatabaseWrapper db = APIBot.getBot().getBotDB();
-        asString = "Bot Aliases: " + Alias.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")); + "; ";
+        asString = "Bot Aliases: " + Aliases.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")); + "; ";
     }
-    asString += "Aliases: " + Alias.getAliases(sArgs.db).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+    asString += "Aliases: " + Aliases.getAliases(sArgs.db).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
     ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }
@@ -139,12 +138,12 @@ private boolean getCommand(ScriptArgs sArgs) {
         return false;
     }
 
-    if (!Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0])
+    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0])
     String raw = "'" + sArgs.argsList[0] + "' is aliased to: " + alias.getCommand();
     ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
     return true;
@@ -155,12 +154,12 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
 
-    if (!Alias.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    LoadedAlias alias = Alias.get(sArgs.db, sArgs.argsList[0]);
+    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0]);
     // Check user level
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr;
@@ -173,7 +172,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     alias.setEnabled(enabled);
-    Alias.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
@@ -184,7 +183,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
     return true;
 }
 
-private LoadedAlias setAliasFields(LoadedAlias alias, String[] argsList) {
+private Alias setAliasFields(Alias alias, String[] argsList) {
     alias.setName(argsList[0])
     alias.setCommand(String.join(" ", argsList[1..-1]));
     return alias;

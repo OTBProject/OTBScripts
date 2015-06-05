@@ -1,5 +1,5 @@
+import com.github.otbproject.otbproject.commands.Commands
 import com.github.otbproject.otbproject.commands.Command
-import com.github.otbproject.otbproject.commands.loader.LoadedCommand
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -17,7 +17,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    if (!Command.exists(sArgs.db, sArgs.argsList[0])) {
+    if (!Commands.exists(sArgs.db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -32,7 +32,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    LoadedCommand command = Command.get(sArgs.db, sArgs.argsList[0]);
+    Command command = Commands.get(sArgs.db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify min args of command '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -40,7 +40,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     command.setMinArgs(minArgs);
-    Command.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromLoadedCommand(sArgs.db, command);
     String commandStr = ResponseCmd.SET_MIN_ARGS_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
