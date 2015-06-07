@@ -27,5 +27,6 @@ public boolean execute(ScriptArgs sArgs) {
         }
     }
 
-    return APIBot.getBot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
+    APIBot.getBot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
+    return false; // so no cooldown
 }

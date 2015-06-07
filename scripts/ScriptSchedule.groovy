@@ -1,5 +1,5 @@
 import com.github.otbproject.otbproject.api.APISchedule
-import com.github.otbproject.otbproject.commands.Command
+import com.github.otbproject.otbproject.commands.Commands
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -69,7 +69,7 @@ private boolean schedule(ScriptArgs sArgs) {
     String timeUnit = sArgs.argsList[3].toUpperCase();
     boolean reset = !sArgs.argsList[4].equals("false");
     String command = String.join(" ", sArgs.argsList[5..-1]);
-    if (!Command.exists(sArgs.db, sArgs.argsList[6])) {
+    if (!Commands.exists(sArgs.db, sArgs.argsList[6])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[5];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
