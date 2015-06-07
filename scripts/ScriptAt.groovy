@@ -6,7 +6,7 @@ import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.users.UserLevel
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
-import com.github.otbproject.otbproject.util.ULUtil
+import com.github.otbproject.otbproject.users.UserLevels
 
 public class ResponseCmd {
     public static final String NOT_IN_CHANNEL = "~%at.not.in.channel";
@@ -28,7 +28,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    UserLevel ul = ULUtil.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
+    UserLevel ul = UserLevels.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
     channel.receiveQueue.add(packagedMessage);
     return true;
