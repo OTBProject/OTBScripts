@@ -29,7 +29,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "false":
             channel.getConfig().setEnabled(false);
             APIConfig.writeChannelConfig(sArgs.channel);
-            channel.sendQueue.clear();
+            channel.clearSendQueue();
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
