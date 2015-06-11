@@ -1,5 +1,5 @@
-import com.github.otbproject.otbproject.commands.Commands
-import com.github.otbproject.otbproject.commands.Command
+import com.github.otbproject.otbproject.command.Commands
+import com.github.otbproject.otbproject.command.Command
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands

@@ -1,6 +1,6 @@
-import com.github.otbproject.otbproject.api.APIBot
-import com.github.otbproject.otbproject.commands.Aliases
-import com.github.otbproject.otbproject.commands.Alias
+import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.command.Aliases
+import com.github.otbproject.otbproject.command.Alias
 import com.github.otbproject.otbproject.database.DatabaseWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -124,9 +124,9 @@ private boolean remove(ScriptArgs sArgs) {
 
 private boolean list(ScriptArgs sArgs) {
     String asString = "";
-    if (sArgs.channel.equals(APIBot.getBot().getUserName())) {
-        DatabaseWrapper db = APIBot.getBot().getBotDB();
-        asString = "Bot Aliases: " + Aliases.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")); + "; ";
+    if (sArgs.channel.equals(Bot.getBot().getUserName())) {
+        DatabaseWrapper db = Bot.getBot().getBotDB();
+        asString = "Bot Aliases: " + Aliases.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")) + "; ";
     }
     asString += "Aliases: " + Aliases.getAliases(sArgs.db).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
     ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);

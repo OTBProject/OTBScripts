@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.api.APIConfig
+import com.github.otbproject.otbproject.config.Configs
 import com.github.otbproject.otbproject.config.ChannelConfig
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -16,20 +16,20 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    ChannelConfig config = APIConfig.getChannelConfig(sArgs.channel);
+    ChannelConfig config = Configs.getChannelConfig(sArgs.channel);
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
             config.setDebug(true);
-            APIConfig.writeChannelConfig(sArgs.channel);
+            Configs.writeChannelConfig(sArgs.channel);
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "off":
         case "false":
             config.setDebug(false);
-            APIConfig.writeChannelConfig(sArgs.channel);
+            Configs.writeChannelConfig(sArgs.channel);
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;

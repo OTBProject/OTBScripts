@@ -1,5 +1,5 @@
-import com.github.otbproject.otbproject.api.APISchedule
-import com.github.otbproject.otbproject.commands.Commands
+import com.github.otbproject.otbproject.command.scheduler.Schedules
+import com.github.otbproject.otbproject.command.Commands
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -31,7 +31,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "rm":
             return unSchedule(sArgs);
         case "list":
-            Set set = APISchedule.getScheduledCommands(sArgs.channel)
+            Set set = Schedules.getScheduledCommands(sArgs.channel)
             List list = set.stream().sorted().collect(Collectors.toList())
             String asString = "Scheduled commands: " + list.toString();
             ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
@@ -74,24 +74,24 @@ private boolean schedule(ScriptArgs sArgs) {
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    if (APISchedule.isScheduled(sArgs.channel, command)) {
+    if (Schedules.isScheduled(sArgs.channel, command)) {
         String commandStr = ResponseCmd.COMMAND_ALREADY_SCHEDULED + " " + command;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
     switch (TimeUnit.valueOf(timeUnit)) {
         case TimeUnit.MINUTES:
-            APISchedule.scheduleCommandInMinutes(sArgs.channel, command, offset, period, reset)
+            Schedules.scheduleCommandInMinutes(sArgs.channel, command, offset, period, reset)
             String commandStr = ResponseCmd.SUCCESSFULL_SCHEDULE + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case TimeUnit.HOURS:
-            APISchedule.scheduleCommandInHours(sArgs.channel, command, offset, period)
+            Schedules.scheduleCommandInHours(sArgs.channel, command, offset, period)
             String commandStr = ResponseCmd.SUCCESSFULL_SCHEDULE + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case TimeUnit.SECONDS:
-            APISchedule.scheduleCommandInSeconds(sArgs.channel, command, offset, period, reset)
+            Schedules.scheduleCommandInSeconds(sArgs.channel, command, offset, period, reset)
             String commandStr = ResponseCmd.SUCCESSFULL_SCHEDULE + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
@@ -111,13 +111,13 @@ private boolean unSchedule(ScriptArgs sArgs) {
         return false;
     }
     String command = String.join(" ", sArgs.argsList[1..-1]);
-    if (!APISchedule.isScheduled(sArgs.channel, command)) {
+    if (!Schedules.isScheduled(sArgs.channel, command)) {
         String commandStr = ResponseCmd.COMMAND_NOT_SCHEDULED + " " + command;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    APISchedule.unScheduleCommand(sArgs.channel, command);
-    APISchedule.removeFromDatabase(sArgs.channel, command);
+    Schedules.unScheduleCommand(sArgs.channel, command);
+    Schedules.removeFromDatabase(sArgs.channel, command);
     String commandStr = ResponseCmd.SUCCESSFULL_UNSCHEDULE + " " + command;
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
