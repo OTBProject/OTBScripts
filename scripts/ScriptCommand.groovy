@@ -253,13 +253,14 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
 // If returned UL is IGNORED, then user is not attempting to modify it
 // If returned minArgs is -1, then user is not attempting to modify it
 private getFlags(ScriptArgs sArgs) throws Exception {
+    UserLevel ul = UserLevel.IGNORED;
+    int minArgs = -1;
+
     if (sArgs.argsList.length == 0) {
-        return new String[0];
+        return [ul, minArgs]
     }
 
-    UserLevel ul = UserLevel.IGNORED;
     boolean doneUL = false;
-    int minArgs = -1;
     boolean doneMinArgs = false;
 
     String firstArg = sArgs.argsList[0];
