@@ -23,32 +23,40 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
     String action = sArgs.argsList[0];
+    boolean forBot = false;
 
-    if (sArgs.argsList.length == 1) {
-        sArgs.argsList = new String[0];
-    } else {
-        sArgs.argsList = sArgs.argsList[1..-1];
+    if (shiftArgs(sArgs) && (sArgs.argsList.length > 0)) {
+        // Get --bot flag
+        if (sArgs.argsList[0].equals("--bot")) {
+            if (!Bot.getBot().getUserName().equals(sArgs.channel)) {
+                String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " --bot";
+                ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+                return false;
+            }
+            forBot = true;
+            shiftArgs(sArgs)
+        }
     }
 
     switch (action.toLowerCase()) {
         case "add":
         case "new":
-            return add(sArgs);
+            return add(sArgs, forBot);
         case "set":
-            return set(sArgs);
+            return set(sArgs, forBot);
         case "remove":
         case "delete":
         case "del":
         case "rm":
-            return remove(sArgs);
+            return remove(sArgs, forBot);
         case "list":
             return list(sArgs);
         case "getcommand":
-            return getCommand(sArgs);
+            return getCommand(sArgs, forBot);
         case "enable":
-            return setEnabled(sArgs, true);
+            return setEnabled(sArgs, true, forBot);
         case "disable":
-            return setEnabled(sArgs, false);
+            return setEnabled(sArgs, false, forBot);
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + action;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -56,11 +64,17 @@ public boolean execute(ScriptArgs sArgs) {
     }
 }
 
-private boolean add(ScriptArgs sArgs) {
+private boolean add(ScriptArgs sArgs, boolean forBot) {
     if (!enoughArgs(2, sArgs)) {
         return false;
     }
-    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
+
+    DatabaseWrapper db = sArgs.db;
+    if (forBot) {
+        db = Bot.getBot().getBotDB();
+    }
+
+    if (Aliases.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -68,21 +82,24 @@ private boolean add(ScriptArgs sArgs) {
 
     Alias alias = new Alias();
     alias = setAliasFields(alias, sArgs.argsList);
-    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(db, alias);
     commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
 }
 
-private boolean set(ScriptArgs sArgs) {
+private boolean set(ScriptArgs sArgs, boolean forBot) {
     if (!enoughArgs(2, sArgs)) {
         return false;
     }
 
-    Alias alias;
-    if (Aliases.exists(sArgs.db, sArgs.argsList[0])) {
-        alias = Aliases.get(sArgs.db, sArgs.argsList[0])
+    DatabaseWrapper db = sArgs.db;
+    if (forBot) {
+        db = Bot.getBot().getBotDB();
+    }
 
+    Alias alias = Aliases.get(db, sArgs.argsList[0]);
+    if (alias != null) {
         // Check UL to modify
         if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
             String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify alias '" + sArgs.argsList[0] + "' ";
@@ -95,28 +112,34 @@ private boolean set(ScriptArgs sArgs) {
     }
 
     alias = setAliasFields(alias, sArgs.argsList);
-    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(db, alias);
     String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
 }
 
-private boolean remove(ScriptArgs sArgs) {
+private boolean remove(ScriptArgs sArgs, boolean forBot) {
     if (!enoughArgs(1, sArgs)) {
         return false;
     }
-    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
+
+    DatabaseWrapper db = sArgs.db;
+    if (forBot) {
+        db = Bot.getBot().getBotDB();
+    }
+
+    if (!Aliases.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0]);
+    Alias alias = Aliases.get(db, sArgs.argsList[0]);
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Aliases.remove(sArgs.db, sArgs.argsList[0]);
+    Aliases.remove(db, sArgs.argsList[0]);
     String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -133,33 +156,43 @@ private boolean list(ScriptArgs sArgs) {
     return true;
 }
 
-private boolean getCommand(ScriptArgs sArgs) {
+private boolean getCommand(ScriptArgs sArgs, boolean forBot) {
     if (!enoughArgs(1, sArgs)) {
         return false;
     }
 
-    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
+    DatabaseWrapper db = sArgs.db;
+    if (forBot) {
+        db = Bot.getBot().getBotDB();
+    }
+
+    if (!Aliases.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0])
+    Alias alias = Aliases.get(db, sArgs.argsList[0])
     String raw = "'" + sArgs.argsList[0] + "' is aliased to: " + alias.getCommand();
     ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
     return true;
 }
 
-private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
+private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
     if (!enoughArgs(1, sArgs)) {
         return false;
     }
 
-    if (!Aliases.exists(sArgs.db, sArgs.argsList[0])) {
+    DatabaseWrapper db = sArgs.db;
+    if (forBot) {
+        db = Bot.getBot().getBotDB();
+    }
+
+    if (!Aliases.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(sArgs.db, sArgs.argsList[0]);
+    Alias alias = Aliases.get(db, sArgs.argsList[0]);
     // Check user level
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr;
@@ -172,7 +205,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled) {
         return false;
     }
     alias.setEnabled(enabled);
-    Aliases.addAliasFromLoadedAlias(sArgs.db, alias);
+    Aliases.addAliasFromLoadedAlias(db, alias);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
@@ -196,4 +229,17 @@ private boolean enoughArgs(int minArgs, ScriptArgs sArgs) {
         return false;
     }
     return true;
+}
+
+// Returns false if argsList is empty
+private boolean shiftArgs(ScriptArgs sArgs) {
+    if (sArgs.argsList.length == 0) {
+        return false;
+    }
+    if (sArgs.argsList.length == 1) {
+        sArgs.argsList = new String[0];
+    } else {
+        sArgs.argsList = sArgs.argsList[1..-1];
+    }
+    return true
 }
