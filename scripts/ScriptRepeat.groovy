@@ -11,11 +11,11 @@ import java.util.concurrent.TimeUnit
 import java.util.stream.Collectors
 
 public class ResponseCmd {
-    public static final String SUCCESSFUL_SCHEDULE = "~%schedule.success";
+    public static final String SUCCESSFUL_SCHEDULE = "~%repeat.set.success";
     public static final String GENERAL_DOES_NOT_EXIST = "~%command.general:does.not.exist";
-    public static final String COMMAND_ALREADY_SCHEDULED = "~%schedule.already.scheduled";
-    public static final String SUCCESSFUL_UNSCHEDULE = "~%unschedule.success";
-    public static final String COMMAND_NOT_SCHEDULED = "~%unschedule.not.scheduled";
+    public static final String COMMAND_ALREADY_SCHEDULED = "~%repeat.already.scheduled";
+    public static final String SUCCESSFUL_UNSCHEDULE = "~%repeat.remove.success";
+    public static final String COMMAND_NOT_SCHEDULED = "~%repeat.remove.not.scheduled";
 }
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
@@ -35,16 +35,18 @@ public boolean execute(ScriptArgs sArgs) {
     switch (action.toLowerCase()) {
         case "add":
         case "new":
-            return schedule(sArgs);
+            return schedule(sArgs, true);
+        case "set":
+        case "edit":
+            return schedule(sArgs, false);
         case "remove":
         case "delete":
         case "del":
         case "rm":
             return unSchedule(sArgs);
         case "list":
-            Set set = Schedules.getScheduledCommands(sArgs.channel)
-            List list = set.stream().sorted().collect(Collectors.toList())
-            String asString = "Scheduled commands: " + list.toString();
+            String list = Schedules.getScheduledCommands(sArgs.channel).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+            String asString = "Scheduled commands: " + list;
             ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
             return true;
         default:
@@ -54,9 +56,9 @@ public boolean execute(ScriptArgs sArgs) {
     }
 }
 
-private boolean schedule(ScriptArgs sArgs) {
+private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
     // OLD: !schedule set 5 30 minutes true !test testarg
-    // !schedule/!repeat set <flags> 30 5 !test testArg
+    // !repeat set <flags> 30 5 !test testArg
     if (sArgs.argsList.length < 3) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -96,7 +98,7 @@ private boolean schedule(ScriptArgs sArgs) {
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    if (Schedules.isScheduled(sArgs.channel, command)) {
+    if (noOverwrite && Schedules.isScheduled(sArgs.channel, command)) {
         String commandStr = ResponseCmd.COMMAND_ALREADY_SCHEDULED + " " + command;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
