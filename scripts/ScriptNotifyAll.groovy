@@ -1,5 +1,5 @@
-import com.github.otbproject.otbproject.api.APIBot
-import com.github.otbproject.otbproject.channels.Channel
+import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -14,7 +14,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     String message = String.join(' ', sArgs.argsList);
 
-    for (Channel channel : APIBot.getBot().channels.values()) {
+    for (Channel channel : Bot.getBot().channels.values()) {
         if (channel.isInChannel()) {
             ScriptHelper.sendMessage(channel.getName(), message, MessagePriority.HIGH);
         }

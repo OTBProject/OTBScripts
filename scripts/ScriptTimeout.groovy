@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.api.APIBot
+import com.github.otbproject.otbproject.bot.Bot
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -27,6 +27,6 @@ public boolean execute(ScriptArgs sArgs) {
         }
     }
 
-    APIBot.getBot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
+    Bot.getBot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
     return false; // so no cooldown
 }

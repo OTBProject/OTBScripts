@@ -1,5 +1,6 @@
-import com.github.otbproject.otbproject.api.APIConfig
-import com.github.otbproject.otbproject.config.ChannelConfig
+import com.github.otbproject.otbproject.channel.Channels
+import com.github.otbproject.otbproject.config.Configs
+import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -16,19 +17,19 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    ChannelConfig config = APIConfig.getChannelConfig(sArgs.channel);
+    Channel channel = Channels.get(sArgs.channel);
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            config.setSilenced(true);
-            APIConfig.writeChannelConfig(sArgs.channel);
-            channel.sendQueue.clear();
+            channel.getConfig().setSilenced(true);
+            Configs.writeChannelConfig(sArgs.channel);
+            channel.clearSendQueue();
             return true;
         case "off":
         case "false":
-            config.setSilenced(false);
-            APIConfig.writeChannelConfig(sArgs.channel);
+            channel.getConfig().setSilenced(false);
+            Configs.writeChannelConfig(sArgs.channel);
             String commandStr = ResponseCmd.UNSILENCED;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;

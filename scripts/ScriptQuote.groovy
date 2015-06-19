@@ -1,9 +1,9 @@
-import com.github.otbproject.otbproject.api.APIChannel
+import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.database.SQLiteQuoteWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
-import com.github.otbproject.otbproject.quotes.Quote
-import com.github.otbproject.otbproject.quotes.Quotes
+import com.github.otbproject.otbproject.quote.Quote
+import com.github.otbproject.otbproject.quote.Quotes
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    SQLiteQuoteWrapper quoteDb = APIChannel.get(sArgs.channel).getQuoteDatabaseWrapper();
+    SQLiteQuoteWrapper quoteDb = Channels.get(sArgs.channel).getQuoteDatabaseWrapper();
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":
