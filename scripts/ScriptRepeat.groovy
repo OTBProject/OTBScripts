@@ -77,7 +77,7 @@ private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
     int period;
     try {
         period = Integer.parseInt(sArgs.argsList[0]);
-    } catch (NumberFormatException e) {
+    } catch (NumberFormatException ignored) {
         String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[1];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -86,7 +86,7 @@ private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
     int offset;
     try {
         offset = Integer.parseInt(sArgs.argsList[1]);
-    } catch (NumberFormatException e) {
+    } catch (NumberFormatException ignored) {
         String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -129,19 +129,18 @@ private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
 
 private boolean unSchedule(ScriptArgs sArgs) {
     //!schedule remove !test
-    if (sArgs.argsList.length < 2) {
+    if (sArgs.argsList.length < 1) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    String command = String.join(" ", sArgs.argsList[1..-1]);
+    String command = String.join(" ", sArgs.argsList);
     if (!Schedules.isScheduled(sArgs.channel, command)) {
         String commandStr = ResponseCmd.COMMAND_NOT_SCHEDULED + " " + command;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
     Schedules.unScheduleCommand(sArgs.channel, command);
-    Schedules.removeFromDatabase(sArgs.channel, command);
     String commandStr = ResponseCmd.SUCCESSFUL_UNSCHEDULE + " " + command;
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;

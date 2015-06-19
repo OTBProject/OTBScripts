@@ -23,7 +23,7 @@ public boolean execute(ScriptArgs sArgs) {
         case "true":
             config.setDebug(true);
             Configs.writeChannelConfig(sArgs.channel);
-            String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
+            String commandStr = ResponseCmd.DEBUG_MODE_SET + " on";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "off":
