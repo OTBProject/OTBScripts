@@ -106,17 +106,17 @@ private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
     switch (timeUnit) {
         case TimeUnit.MINUTES:
             Schedules.scheduleCommandInMinutes(sArgs.channel, command, offset, period, reset)
-            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + command;
+            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + period + " " + timeUnit.name() + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case TimeUnit.HOURS:
             Schedules.scheduleCommandInHours(sArgs.channel, command, offset, period)
-            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + command;
+            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + period + " " + timeUnit.name() + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case TimeUnit.SECONDS:
             Schedules.scheduleCommandInSeconds(sArgs.channel, command, offset, period, reset)
-            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + command;
+            String commandStr = ResponseCmd.SUCCESSFUL_SCHEDULE + " " + period + " " + timeUnit.name() + " " + command;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         default:
