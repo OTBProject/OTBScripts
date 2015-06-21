@@ -17,7 +17,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    Channel channel = Channels.get(sArgs.channel);
+    Channel channel = Channels.getOrThrow(sArgs.channel);
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":

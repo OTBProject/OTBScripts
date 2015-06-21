@@ -20,15 +20,15 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     String channelName = sArgs.argsList[0].toLowerCase();
-    Channel channel = Channels.get(channelName);
+    Optional<Channel> channelOptional = Channels.get(channelName);
 
-    if (!Channels.in(channelName)) {
+    if (!channelOptional.isPresent() || !channelOptional.get().isInChannel()) {
         String commandStr = ResponseCmd.NOT_IN_CHANNEL + " " + channelName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
 
-    UserLevel ul = UserLevels.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
+    UserLevel ul = UserLevels.getUserLevel(channelOptional.get().getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
     channel.receiveQueue.add(packagedMessage);
     return true;
