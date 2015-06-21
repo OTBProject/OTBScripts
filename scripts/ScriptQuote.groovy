@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    SQLiteQuoteWrapper quoteDb = Channels.get(sArgs.channel).getQuoteDatabaseWrapper();
+    SQLiteQuoteWrapper quoteDb = Channels.getOrThrow(sArgs.channel).getQuoteDatabaseWrapper();
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":
