@@ -1,8 +1,8 @@
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
-import com.github.otbproject.otbproject.users.User
-import com.github.otbproject.otbproject.users.UserLevel
-import com.github.otbproject.otbproject.users.Users
+import com.github.otbproject.otbproject.user.User
+import com.github.otbproject.otbproject.user.UserLevel
+import com.github.otbproject.otbproject.user.Users
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 

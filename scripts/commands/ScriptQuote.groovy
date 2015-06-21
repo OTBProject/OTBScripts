@@ -1,11 +1,14 @@
-import com.github.otbproject.otbproject.api.APIChannel
+import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.database.SQLiteQuoteWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
-import com.github.otbproject.otbproject.quotes.Quote
-import com.github.otbproject.otbproject.quotes.Quotes
+import com.github.otbproject.otbproject.quote.Quote
+import com.github.otbproject.otbproject.quote.Quotes
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
+
+import java.util.function.Function
+import java.util.stream.Collectors
 
 public class ResponseCmd {
     public static final String ADD_ALREADY_EXISTS = "~%quote.add.already.exists";
@@ -21,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    SQLiteQuoteWrapper quoteDb = APIChannel.get(sArgs.channel).getQuoteDatabaseWrapper();
+    SQLiteQuoteWrapper quoteDb = Channels.getOrThrow(sArgs.channel).getQuoteDatabaseWrapper();
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":
@@ -106,9 +109,7 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 }
 
 private boolean list(SQLiteQuoteWrapper db, String destinationChannel) {
-    ArrayList<Integer> list = Quotes.getQuoteIds(db);
-    Collections.sort(list);
-    String asString = "Quote IDs: " + list.toString();
+    String asString = "Quote IDs: " + Quotes.getQuoteIds(db).stream().sorted().map({id -> id.toString()} as Function).collect(Collectors.joining(",", "[", "]"));
     ScriptHelper.sendMessage(destinationChannel, asString, MessagePriority.HIGH);
     return true;
 }

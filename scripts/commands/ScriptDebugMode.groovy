@@ -1,13 +1,12 @@
-import com.github.otbproject.otbproject.api.APIChannel
-import com.github.otbproject.otbproject.api.APIConfig
-import com.github.otbproject.otbproject.channels.Channel
+import com.github.otbproject.otbproject.config.Configs
+import com.github.otbproject.otbproject.config.ChannelConfig
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
 public class ResponseCmd {
-    public static final String BOT_ENABLE_SUCCESS = "~%bot.enable.success";
+    public static final String DEBUG_MODE_SET = "~%channel.debug.mode.set";
 }
 
 public boolean execute(ScriptArgs sArgs) {
@@ -17,24 +16,27 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    Channel channel = APIChannel.get(sArgs.channel);
+    ChannelConfig config = Configs.getChannelConfig(sArgs.channel);
 
     switch (sArgs.argsList[0].toLowerCase()) {
+        case "on":
         case "true":
-            channel.getConfig().setEnabled(true);
-            APIConfig.writeChannelConfig(sArgs.channel);
-            String commandStr = ResponseCmd.BOT_ENABLE_SUCCESS;
+            config.setDebug(true);
+            Configs.writeChannelConfig(sArgs.channel);
+            String commandStr = ResponseCmd.DEBUG_MODE_SET + " on";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
+        case "off":
         case "false":
-            channel.getConfig().setEnabled(false);
-            APIConfig.writeChannelConfig(sArgs.channel);
-            channel.sendQueue.clear();
+            config.setDebug(false);
+            Configs.writeChannelConfig(sArgs.channel);
+            String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
     }
-}
 
+}

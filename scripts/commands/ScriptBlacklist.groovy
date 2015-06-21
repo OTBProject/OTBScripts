@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.api.APIConfig
+import com.github.otbproject.otbproject.config.Configs
 import com.github.otbproject.otbproject.config.BotConfigHelper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -24,8 +24,8 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.addToBlacklist(APIConfig.getBotConfig(), sArgs.argsList[1].toLowerCase());
-            APIConfig.writeBotConfig();
+            BotConfigHelper.addToBlacklist(Configs.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            Configs.writeBotConfig();
             String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
@@ -35,13 +35,13 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.removeFromBlacklist(APIConfig.getBotConfig(), sArgs.argsList[1].toLowerCase());
-            APIConfig.writeBotConfig();
+            BotConfigHelper.removeFromBlacklist(Configs.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            Configs.writeBotConfig();
             String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "list":
-            ArrayList<String> list = new ArrayList<String>(APIConfig.getBotConfig().blacklist);
+            ArrayList<String> list = new ArrayList<String>(Configs.getBotConfig().blacklist);
             Collections.sort(list);
             ScriptHelper.sendMessage(sArgs.destinationChannel, "Blacklist: " + list.toString(), MessagePriority.HIGH);
             return true;
