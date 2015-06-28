@@ -33,6 +33,5 @@ public boolean execute(ScriptArgs sArgs) {
     UserLevel ul = UserLevels.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
     channel.receiveMessage(packagedMessage);
-    App.logger.debug(channel.getName());
     return true;
 }
