@@ -1,4 +1,5 @@
 import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.channel.ChannelGetException
 import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.config.Configs
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -9,12 +10,13 @@ public class ResponseCmd {
     public static final String JOINED_CHANNEL = "~%bot.joined.channel";
 }
 
-public boolean execute(ScriptArgs sArgs) {
+public boolean execute(ScriptArgs sArgs) throws ChannelGetException {
     boolean success =  Channels.join(sArgs.user);
     if (success) {
         // Enable bot in case it was disabled before it was removed
-        // If somehow the channel doesn't exist and this NPE's, it will crash,
-        //  which it probably should do anyway if the channel doesn't exist
+        // If somehow the channel doesn't exist and this throws an exception,
+        //  it will crash, which it probably should do anyway if the channel
+        //  doesn't exist
         Configs.getChannelConfig(sArgs.user).setEnabled(true);
         Configs.writeChannelConfig(sArgs.user);
 

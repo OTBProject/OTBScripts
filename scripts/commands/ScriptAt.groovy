@@ -1,3 +1,4 @@
+import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.receive.PackagedMessage
@@ -28,8 +29,9 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    UserLevel ul = UserLevels.getUserLevel(channelOptional.get().getMainDatabaseWrapper(), channelName, sArgs.user);
+    Channel channel = channelOptional.get();
+    UserLevel ul = UserLevels.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
-    channel.receiveQueue.add(packagedMessage);
+    channel.receiveMessage(packagedMessage);
     return true;
 }

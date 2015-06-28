@@ -1,3 +1,4 @@
+import com.github.otbproject.otbproject.channel.ChannelGetException
 import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.config.Configs
 import com.github.otbproject.otbproject.channel.Channel
@@ -10,7 +11,7 @@ public class ResponseCmd {
     public static final String UNSILENCED = "~%bot.unsilence.success";
 }
 
-public boolean execute(ScriptArgs sArgs) {
+public boolean execute(ScriptArgs sArgs) throws ChannelGetException {
     if (sArgs.argsList.length < 1) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_ARGS + " " + sArgs.commandName;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);

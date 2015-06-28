@@ -1,4 +1,5 @@
 import com.github.otbproject.otbproject.App
+import com.github.otbproject.otbproject.command.Aliases
 import com.github.otbproject.otbproject.command.scheduler.Schedules
 import com.github.otbproject.otbproject.command.Commands
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -12,7 +13,7 @@ import java.util.stream.Collectors
 
 public class ResponseCmd {
     public static final String SUCCESSFUL_SCHEDULE = "~%repeat.set.success";
-    public static final String GENERAL_DOES_NOT_EXIST = "~%command.general:does.not.exist";
+    public static final String NOT_COMMAND_OR_ALIAS = "~%repeat.not.command.or.alias";
     public static final String COMMAND_ALREADY_SCHEDULED = "~%repeat.already.scheduled";
     public static final String SUCCESSFUL_UNSCHEDULE = "~%repeat.remove.success";
     public static final String COMMAND_NOT_SCHEDULED = "~%repeat.remove.not.scheduled";
@@ -93,8 +94,9 @@ private boolean schedule(ScriptArgs sArgs, boolean noOverwrite) {
     }
 
     String command = String.join(" ", sArgs.argsList[2..-1]);
-    if (!Commands.exists(sArgs.db, sArgs.argsList[2])) {
-        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[5];
+    String commandName = sArgs.argsList[2];
+    if (!Commands.exists(sArgs.db, commandName) && !Aliases.exists(sArgs.db, commandName)) {
+        String commandStr = ResponseCmd.NOT_COMMAND_OR_ALIAS + " " + command;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
