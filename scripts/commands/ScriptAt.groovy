@@ -1,4 +1,3 @@
-import com.github.otbproject.otbproject.App
 import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.receive.PackagedMessage
