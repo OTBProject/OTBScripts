@@ -1,5 +1,5 @@
 import com.github.otbproject.otbproject.config.Configs
-import com.github.otbproject.otbproject.config.BotConfigHelper
+
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.addToBlacklist(Configs.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            Configs.getBotConfig().getBlacklist().add(sArgs.argsList[1].toLowerCase());
             Configs.writeBotConfig();
             String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -35,7 +35,7 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            BotConfigHelper.removeFromBlacklist(Configs.getBotConfig(), sArgs.argsList[1].toLowerCase());
+            Configs.getBotConfig().getBlacklist().remove(sArgs.argsList[1].toLowerCase());
             Configs.writeBotConfig();
             String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
