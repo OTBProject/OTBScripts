@@ -65,15 +65,16 @@ private boolean add(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
         quote.setText(quoteText);
         boolean success = Quotes.addQuoteFromObj(db, quote);
         if (success) {
-            int id = Quotes.get(db, quoteText).getId();
-            String commandStr = ResponseCmd.ADD_SUCCESS + " " + id;
-            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
-            return true;
-        } else {
-            String commandStr = BuiltinCommands.GENERAL_UNKNOWN_FAILURE + " " + sArgs.commandName + " adding a quote";
-            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
-            return false;
+            Optional<Quote> optional = Quotes.get(db, quoteText);
+            if (optional.isPresent()) {
+                String commandStr = ResponseCmd.ADD_SUCCESS + " " + optional.get().getId();
+                ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+                return true;
+            }
         }
+        String commandStr = BuiltinCommands.GENERAL_UNKNOWN_FAILURE + " " + sArgs.commandName + " adding a quote";
+        ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+        return false;
     }
 }
 
@@ -86,7 +87,7 @@ private boolean remove(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
 
     try {
         int id = Integer.valueOf(sArgs.argsList[1]);
-        if (!Quotes.existsAndNotRemoved(db, id)) {
+        if (!Quotes.exists(db, id)) {
             String commandStr = ResponseCmd.DOES_NOT_EXIST + " with ID '" + id + "'";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return false;
@@ -121,13 +122,13 @@ private boolean getId(SQLiteQuoteWrapper db, ScriptArgs sArgs) {
         return false;
     }
 
-    Quote quote = Quotes.get(db, String.join(" ", sArgs.argsList[1..-1]));
-    if (quote == null) {
+    Optional<Quote> optional = Quotes.get(db, String.join(" ", sArgs.argsList[1..-1]));
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.DOES_NOT_EXIST + " with the given text";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     } else {
-        int id = quote.getId();
+        int id = optional.get().getId();
         String asString = "Quote ID: " + id;
         ScriptHelper.sendMessage(sArgs.destinationChannel, asString, MessagePriority.HIGH);
         return true;
