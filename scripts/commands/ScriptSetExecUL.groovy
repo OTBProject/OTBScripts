@@ -18,7 +18,8 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    if (!Commands.exists(sArgs.db, sArgs.argsList[0])) {
+    Optional<Command> optional = Commands.get(sArgs.db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
@@ -60,7 +61,7 @@ public boolean execute(ScriptArgs sArgs) {
             return false;
     }
 
-    Command command = Commands.get(sArgs.db, sArgs.argsList[0]);
+    Command command = optional.get();
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify exec user level of command '" + sArgs.argsList[0] + "'";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);

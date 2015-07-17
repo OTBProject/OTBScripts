@@ -132,8 +132,10 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    Command command = Commands.get(db, sArgs.argsList[0]);
-    if (command != null) {
+    Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
+    Command command;
+    if (optional.isPresent()) {
+        command = optional.get();
         // Check UL to modify response
         if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getResponseModifyingUL().getValue()) {
             String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify response of command '" + sArgs.argsList[0] + "' ";
@@ -175,13 +177,13 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-
-    if (!Commands.exists(db, sArgs.argsList[0])) {
+    Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Command command = Commands.get(db, sArgs.argsList[0]);
+    Command command = optional.get();
     if (sArgs.userLevel.getValue() < command.modifyingUserLevels.getUserLevelModifyingUL().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove command '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -225,12 +227,13 @@ private boolean raw(ScriptArgs sArgs, boolean forBot) {
     }
     commandName = commandName.split(" ")[0];
 
-    if (!Commands.exists(db, commandName)) {
-        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + commandName;
+    Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
+        String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Command command = Commands.get(db, commandName)
+    Command command = optional.get();
     raw += "The raw response for '" + commandName + "' is";
     if ((command.getScript() != null) && (command.getScript() != "null")) {
         raw += " ignored because '" + commandName + "' is a script command.";
@@ -251,12 +254,13 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    if (!Commands.exists(db, sArgs.argsList[0])) {
+    Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Command command = Commands.get(db, sArgs.argsList[0]);
+    Command command = optional.get();
     // Prevent disabling self
     if (command.getScript().equals("ScriptCommand.groovy")) {
         String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
