@@ -98,8 +98,10 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    Alias alias = Aliases.get(db, sArgs.argsList[0]);
-    if (alias != null) {
+    Alias alias;
+    Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
+    if (optional.isPresent()) {
+        alias = optional.get();
         // Check UL to modify
         if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
             String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " modify alias '" + sArgs.argsList[0] + "' ";
@@ -128,12 +130,14 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    if (!Aliases.exists(db, sArgs.argsList[0])) {
+    Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(db, sArgs.argsList[0]);
+
+    Alias alias = optional.get();
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr = BuiltinCommands.GENERAL_INSUFFICIENT_USER_LEVEL + " " + sArgs.commandName + " remove alias '" + sArgs.argsList[0] + "' ";
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
@@ -166,12 +170,13 @@ private boolean getCommand(ScriptArgs sArgs, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    if (!Aliases.exists(db, sArgs.argsList[0])) {
+    Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(db, sArgs.argsList[0])
+    Alias alias = optional.get();
     String raw = "'" + sArgs.argsList[0] + "' is aliased to: " + alias.getCommand();
     ScriptHelper.sendMessage(sArgs.destinationChannel, raw, MessagePriority.HIGH);
     return true;
@@ -187,12 +192,13 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         db = Bot.getBot().getBotDB();
     }
 
-    if (!Aliases.exists(db, sArgs.argsList[0])) {
+    Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
+    if (!optional.isPresent()) {
         String commandStr = ResponseCmd.GENERAL_DOES_NOT_EXIST + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return false;
     }
-    Alias alias = Aliases.get(db, sArgs.argsList[0]);
+    Alias alias = optional.get();
     // Check user level
     if (sArgs.userLevel.getValue() < alias.getModifyingUserLevel().getValue()) {
         String commandStr;
