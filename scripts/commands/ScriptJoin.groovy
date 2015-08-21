@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.channel.ChannelNotFoundException
 import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.config.Configs
@@ -20,7 +20,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
         Configs.getChannelConfig(sArgs.user).setEnabled(true);
         Configs.writeChannelConfig(sArgs.user);
 
-        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, Bot.getBot().getUserName(), Bot.getBot().getUserName(), sArgs.user, MessagePriority.HIGH);
+        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, Control.getBot().getUserName(), Control.getBot().getUserName(), sArgs.user, MessagePriority.HIGH);
     }
     return success;
 }

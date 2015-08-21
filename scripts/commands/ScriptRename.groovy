@@ -38,7 +38,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     command.setName(sArgs.argsList[1]);
     Commands.remove(sArgs.db, sArgs.argsList[0])
-    Commands.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromObj(sArgs.db, command);
     String commandStr = ResponseCmd.RENAME_SUCCESS + " " + sArgs.argsList[0] + " " + sArgs.argsList[1];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;

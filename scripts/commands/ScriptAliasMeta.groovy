@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.command.Aliases
 import com.github.otbproject.otbproject.command.Alias
 import com.github.otbproject.otbproject.database.DatabaseWrapper
@@ -28,7 +28,7 @@ public boolean execute(ScriptArgs sArgs) {
     if (shiftArgs(sArgs) && (sArgs.argsList.length > 0)) {
         // Get --bot flag
         if (sArgs.argsList[0].equals("--bot")) {
-            if (!Bot.getBot().getUserName().equals(sArgs.channel)) {
+            if (!Control.getBot().getUserName().equals(sArgs.channel)) {
                 String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " --bot";
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
@@ -69,10 +69,7 @@ private boolean add(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     if (Aliases.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
@@ -82,7 +79,7 @@ private boolean add(ScriptArgs sArgs, boolean forBot) {
 
     Alias alias = new Alias();
     alias = setAliasFields(alias, sArgs.argsList);
-    Aliases.addAliasFromLoadedAlias(db, alias);
+    Aliases.addAliasFromObj(db, alias);
     commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -93,10 +90,7 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Alias alias;
     Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
@@ -114,7 +108,7 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
     }
 
     alias = setAliasFields(alias, sArgs.argsList);
-    Aliases.addAliasFromLoadedAlias(db, alias);
+    Aliases.addAliasFromObj(db, alias);
     String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
@@ -125,10 +119,7 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
     if (!optional.isPresent()) {
@@ -151,8 +142,8 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
 
 private boolean list(ScriptArgs sArgs) {
     String asString = "";
-    if (sArgs.channel.equals(Bot.getBot().getUserName())) {
-        DatabaseWrapper db = Bot.getBot().getBotDB();
+    if (sArgs.channel.equals(Control.getBot().getUserName())) {
+        DatabaseWrapper db = Control.getBot().getBotDB();
         asString = "Bot Aliases: " + Aliases.getAliases(db).stream().sorted().collect(Collectors.joining(", ", "[", "]")) + "; ";
     }
     asString += "Aliases: " + Aliases.getAliases(sArgs.db).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
@@ -165,10 +156,7 @@ private boolean getCommand(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
     if (!optional.isPresent()) {
@@ -187,10 +175,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Alias> optional = Aliases.get(db, sArgs.argsList[0]);
     if (!optional.isPresent()) {
@@ -211,7 +196,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         return false;
     }
     alias.setEnabled(enabled);
-    Aliases.addAliasFromLoadedAlias(db, alias);
+    Aliases.addAliasFromObj(db, alias);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
@@ -248,4 +233,11 @@ private boolean shiftArgs(ScriptArgs sArgs) {
         sArgs.argsList = sArgs.argsList[1..-1];
     }
     return true
+}
+
+private DatabaseWrapper getDBWrapper(ScriptArgs sArgs, boolean forBot) {
+    if (forBot) {
+        return Control.getBot().getBotDB();
+    }
+    return sArgs.db;
 }

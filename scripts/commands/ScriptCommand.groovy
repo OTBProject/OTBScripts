@@ -1,5 +1,6 @@
 import com.github.otbproject.otbproject.App
-import com.github.otbproject.otbproject.bot.Bot
+
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.command.Aliases
 import com.github.otbproject.otbproject.command.Commands
 import com.github.otbproject.otbproject.command.Command
@@ -35,7 +36,7 @@ public boolean execute(ScriptArgs sArgs) {
     if (shiftArgs(sArgs) && (sArgs.argsList.length > 0)) {
         // Get --bot flag
         if (sArgs.argsList[0].equals("--bot")) {
-            if (!Bot.getBot().getUserName().equals(sArgs.channel)) {
+            if (!Control.getBot().getUserName().equals(sArgs.channel)) {
                 String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " --bot";
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
@@ -87,10 +88,7 @@ private boolean add(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     if (Commands.exists(db, sArgs.argsList[0])) {
         String commandStr = ResponseCmd.ADD_ALREADY_EXISTS + " " + sArgs.argsList[0];
@@ -100,7 +98,7 @@ private boolean add(ScriptArgs sArgs, boolean forBot) {
 
     Command command = new Command();
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    Commands.addCommandFromLoadedCommand(db, command);
+    Commands.addCommandFromObj(db, command);
     // Check if command is an alias
     String commandStr;
     if (Aliases.exists(db, sArgs.argsList[0])) {
@@ -127,10 +125,7 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
     Command command;
@@ -155,7 +150,7 @@ private boolean set(ScriptArgs sArgs, boolean forBot) {
     }
 
     command = setCommandFields(command, sArgs.argsList, execUL, minArgs);
-    Commands.addCommandFromLoadedCommand(db, command);
+    Commands.addCommandFromObj(db, command);
     // Check if command is an alias
     String commandStr;
     if (Aliases.exists(db, sArgs.argsList[0])) {
@@ -172,10 +167,7 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
     if (!optional.isPresent()) {
@@ -197,8 +189,8 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
 
 private boolean list(ScriptArgs sArgs) {
     String asString = "";
-    if (sArgs.channel.equals(Bot.getBot().getUserName())) {
-        DatabaseWrapper db = Bot.getBot().getBotDB();
+    if (sArgs.channel.equals(Control.getBot().getUserName())) {
+        DatabaseWrapper db = Control.getBot().getBotDB();
         String cmdString = Commands.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.joining(", ", "[", "]"));
         asString = "Bot Commands: " + cmdString + "; ";
     }
@@ -214,10 +206,7 @@ private boolean raw(ScriptArgs sArgs, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     // Parse through aliases
     String commandName = CommandProcessor.checkAlias(db, sArgs.argsList[0]);
@@ -249,10 +238,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         return false;
     }
 
-    DatabaseWrapper db = sArgs.db;
-    if (forBot) {
-        db = Bot.getBot().getBotDB();
-    }
+    DatabaseWrapper db = getDBWrapper(sArgs, forBot);
 
     Optional<Command> optional = Commands.get(db, sArgs.argsList[0]);
     if (!optional.isPresent()) {
@@ -280,7 +266,7 @@ private boolean setEnabled(ScriptArgs sArgs, boolean enabled, boolean forBot) {
         return false;
     }
     command.setEnabled(enabled);
-    Commands.addCommandFromLoadedCommand(db, command);
+    Commands.addCommandFromObj(db, command);
     String commandStr;
     if (enabled) {
         commandStr = ResponseCmd.ENABLED + " " + sArgs.argsList[0];
@@ -409,4 +395,11 @@ private boolean shiftArgs(ScriptArgs sArgs) {
         sArgs.argsList = sArgs.argsList[1..-1];
     }
     return true
+}
+
+private DatabaseWrapper getDBWrapper(ScriptArgs sArgs, boolean forBot) {
+    if (forBot) {
+        return Control.getBot().getBotDB();
+    }
+    return sArgs.db;
 }
