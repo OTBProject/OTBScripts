@@ -41,7 +41,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     command.setMinArgs(minArgs);
-    Commands.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromObj(sArgs.db, command);
     String commandStr = ResponseCmd.SET_MIN_ARGS_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;

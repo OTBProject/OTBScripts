@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.bot.Bot
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -14,7 +14,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     String message = String.join(' ', sArgs.argsList);
 
-    for (Channel channel : Bot.getBot().channels.values()) {
+    for (Channel channel : Control.getBot().channels.values()) {
         if (channel.isInChannel()) {
             ScriptHelper.sendMessage(channel.getName(), message, MessagePriority.HIGH);
         }

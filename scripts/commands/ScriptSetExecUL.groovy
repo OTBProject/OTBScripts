@@ -69,7 +69,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     command.setExecUserLevel(ul);
-    Commands.addCommandFromLoadedCommand(sArgs.db, command);
+    Commands.addCommandFromObj(sArgs.db, command);
     String commandStr = ResponseCmd.SET_EXEC_UL_SUCCESS + " " + sArgs.argsList[0];
     ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
     return true;
