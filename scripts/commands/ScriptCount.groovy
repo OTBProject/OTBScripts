@@ -94,7 +94,7 @@ private boolean set(ScriptArgs sArgs) {
         Command command = optional.get();
         command.setCount(count);
         Commands.addCommandFromObj(sArgs.db, command);
-        String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[2];
+        String commandStr = ResponseCmd.SET_SUCCESS + " " + sArgs.argsList[2] + " " + count;
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return true;
     }
