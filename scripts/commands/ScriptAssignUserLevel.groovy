@@ -60,7 +60,6 @@ public boolean execute(ScriptArgs sArgs) {
             ul = UserLevel.IGNORED
             break;
         case "reset":
-        case "twitch":
             return doReset(sArgs);
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
