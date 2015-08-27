@@ -83,6 +83,11 @@ private boolean set(ScriptArgs sArgs) {
     int count;
     try {
         count = Integer.parseInt(sArgs.argsList[1])
+        if (count < 0) {
+            String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.argsList[1];
+            ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
+            return false;
+        }
     } catch (NumberFormatException ignored) {
         String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.argsList[1];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
