@@ -1,9 +1,14 @@
+import com.github.otbproject.otbproject.config.BotConfig
 import com.github.otbproject.otbproject.config.Configs
 
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
+
+import java.util.function.Consumer
+import java.util.function.Function
+import java.util.stream.Collectors
 
 public class ResponseCmd {
     public static final String ADD_SUCCESS = "~%blacklist.add.success";
@@ -24,8 +29,7 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            Configs.getBotConfig().getBlacklist().add(sArgs.argsList[1].toLowerCase());
-            Configs.writeBotConfig();
+            Configs.editBotConfig({ config -> config.getBlacklist().add(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
             String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
@@ -35,15 +39,13 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            Configs.getBotConfig().getBlacklist().remove(sArgs.argsList[1].toLowerCase());
-            Configs.writeBotConfig();
+            Configs.editBotConfig({ config -> config.getBlacklist().remove(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
             String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "list":
-            ArrayList<String> list = new ArrayList<String>(Configs.getBotConfig().blacklist);
-            Collections.sort(list);
-            ScriptHelper.sendMessage(sArgs.destinationChannel, "Blacklist: " + list.toString(), MessagePriority.HIGH);
+            String list = Configs.getFromBotConfig({ config -> config.getBlacklist() } as Function<BotConfig, Set<String>>).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+            ScriptHelper.sendMessage(sArgs.destinationChannel, "Blacklist: " + list, MessagePriority.HIGH);
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];

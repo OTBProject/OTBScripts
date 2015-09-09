@@ -6,6 +6,8 @@ import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
 
+import java.util.function.Consumer
+
 public class ResponseCmd {
     public static final String DEBUG_MODE_SET = "~%channel.debug.mode.set";
 }
@@ -17,20 +19,16 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
         return false;
     }
 
-    ChannelConfig config = Configs.getChannelConfig(sArgs.channel);
-
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            config.setDebug(true);
-            Configs.writeChannelConfig(sArgs.channel);
+            Configs.editChannelConfig(sArgs.channel, { config -> config.setDebug(true) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " on";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "off":
         case "false":
-            config.setDebug(false);
-            Configs.writeChannelConfig(sArgs.channel);
+            Configs.editChannelConfig(sArgs.channel, { config -> config.setDebug(false) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
