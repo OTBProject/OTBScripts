@@ -1,9 +1,11 @@
 import com.github.otbproject.otbproject.bot.Control
-import com.github.otbproject.otbproject.channel.Channel
+import com.github.otbproject.otbproject.channel.ChannelProxyImpl
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
 import com.github.otbproject.otbproject.util.ScriptHelper
+
+import java.util.function.Consumer
 
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
@@ -14,10 +16,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     String message = String.join(' ', sArgs.argsList);
 
-    for (Channel channel : Control.getBot().channels.values()) {
-        if (channel.isInChannel()) {
-            ScriptHelper.sendMessage(channel.getName(), message, MessagePriority.HIGH);
-        }
-    }
+    Control.getBot().channelManager().proxyStream()
+            .forEach({ proxy -> ScriptHelper.sendMessage(proxy as ChannelProxyImpl, message, MessagePriority.HIGH)} as Consumer<? super ChannelProxyImpl>)
     return true;
 }

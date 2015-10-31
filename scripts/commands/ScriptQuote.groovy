@@ -1,4 +1,4 @@
-import com.github.otbproject.otbproject.channel.Channels
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.database.SQLiteQuoteWrapper
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    SQLiteQuoteWrapper quoteDb = Channels.getOrThrow(sArgs.channel).getQuoteDatabaseWrapper();
+    SQLiteQuoteWrapper quoteDb = Control.getBot().channelManager().getOrThrow(sArgs.channel).getQuoteDatabaseWrapper();
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "add":

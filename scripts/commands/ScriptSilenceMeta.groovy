@@ -1,8 +1,8 @@
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.channel.ChannelNotFoundException
-import com.github.otbproject.otbproject.channel.Channels
+import com.github.otbproject.otbproject.channel.ChannelProxy
 import com.github.otbproject.otbproject.config.ChannelConfig
 import com.github.otbproject.otbproject.config.Configs
-import com.github.otbproject.otbproject.channel.Channel
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            Channel channel = Channels.getOrThrow(sArgs.channel);
+            ChannelProxy channel = Control.getBot().channelManager().getOrThrow(sArgs.channel);
             Configs.editChannelConfig(channel, { config -> config.setSilenced(true) } as Consumer<ChannelConfig>)
             channel.clearSendQueue();
             return true;
