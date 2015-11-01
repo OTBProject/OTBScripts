@@ -36,7 +36,7 @@ public boolean execute(ScriptArgs sArgs) {
     if (shiftArgs(sArgs) && (sArgs.argsList.length > 0)) {
         // Get --bot flag
         if (sArgs.argsList[0].equals("--bot")) {
-            if (!Control.getBot().getUserName().equals(sArgs.channel)) {
+            if (!Control.bot().getUserName().equals(sArgs.channel)) {
                 String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " --bot";
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
@@ -189,8 +189,8 @@ private boolean remove(ScriptArgs sArgs, boolean forBot) {
 
 private boolean list(ScriptArgs sArgs) {
     String asString = "";
-    if (sArgs.channel.equals(Control.getBot().getUserName())) {
-        DatabaseWrapper db = Control.getBot().getBotDB();
+    if (sArgs.channel.equals(Control.bot().getUserName())) {
+        DatabaseWrapper db = Control.bot().getBotDB();
         String cmdString = Commands.getCommands(db).stream().filter({item -> !item.startsWith("~%")} as Predicate<? super String>).sorted().collect(Collectors.joining(", ", "[", "]"));
         asString = "Bot Commands: " + cmdString + "; ";
     }
@@ -399,7 +399,7 @@ private boolean shiftArgs(ScriptArgs sArgs) {
 
 private DatabaseWrapper getDBWrapper(ScriptArgs sArgs, boolean forBot) {
     if (forBot) {
-        return Control.getBot().getBotDB();
+        return Control.bot().getBotDB();
     }
     return sArgs.db;
 }

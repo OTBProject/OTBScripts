@@ -16,7 +16,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    if (Control.getBot().channelManager().leave(sArgs.argsList[0].toLowerCase())) {
+    if (Control.bot().channelManager().leave(sArgs.argsList[0].toLowerCase())) {
         String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[0];
         ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
         return true;

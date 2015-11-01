@@ -24,7 +24,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            ChannelProxy channel = Control.getBot().channelManager().getOrThrow(sArgs.channel);
+            ChannelProxy channel = Control.bot().channelManager().getOrThrow(sArgs.channel);
             Configs.getChannelConfig(channel).edit({ config -> config.setSilenced(true) } as Consumer<ChannelConfig>)
             channel.clearSendQueue();
             return true;

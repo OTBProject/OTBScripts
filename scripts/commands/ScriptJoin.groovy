@@ -13,7 +13,7 @@ public class ResponseCmd {
 }
 
 public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
-    boolean success =  Control.getBot().channelManager().join(sArgs.user);
+    boolean success =  Control.bot().channelManager().join(sArgs.user);
     if (success) {
         // Enable bot in case it was disabled before it was removed
         // If somehow the channel doesn't exist and this throws an exception,
@@ -21,7 +21,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
         //  doesn't exist
         Configs.getChannelConfig(sArgs.user).edit({ config -> config.setEnabled(true) } as Consumer<ChannelConfig>)
 
-        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, Control.getBot().getUserName(), Control.getBot().getUserName(), sArgs.user, MessagePriority.HIGH);
+        ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, Control.bot().getUserName(), Control.bot().getUserName(), sArgs.user, MessagePriority.HIGH);
     }
     return success;
 }

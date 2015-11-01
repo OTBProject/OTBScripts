@@ -20,7 +20,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     String channelName = sArgs.argsList[0].toLowerCase();
-    Optional<ChannelProxy> channelOptional = Control.getBot().channelManager().get(channelName);
+    Optional<ChannelProxy> channelOptional = Control.bot().channelManager().get(channelName);
 
     if (!channelOptional.isPresent() || !channelOptional.get().isInChannel()) {
         String commandStr = ResponseCmd.NOT_IN_CHANNEL + " " + channelName;
