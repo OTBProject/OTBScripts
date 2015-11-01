@@ -16,7 +16,7 @@ public boolean execute(ScriptArgs sArgs) {
 
     String message = String.join(' ', sArgs.argsList);
 
-    Control.getBot().channelManager().proxyStream()
+    Control.bot().channelManager().proxyStream()
             .forEach({ proxy -> ScriptHelper.sendMessage(proxy as ChannelProxyImpl, message, MessagePriority.HIGH)} as Consumer<? super ChannelProxyImpl>)
     return true;
 }

@@ -27,6 +27,6 @@ public boolean execute(ScriptArgs sArgs) {
         }
     }
 
-    Control.getBot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
+    Control.bot().timeout(sArgs.channel, sArgs.argsList[0].toLowerCase(), timeoutTime);
     return false; // so no cooldown
 }

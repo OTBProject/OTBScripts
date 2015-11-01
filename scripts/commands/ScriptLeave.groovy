@@ -14,8 +14,8 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    if (sArgs.argsList[0].equalsIgnoreCase(Control.getBot().getUserName())) {
-        Control.getBot().channelManager().leave(sArgs.channel);
+    if (sArgs.argsList[0].equalsIgnoreCase(Control.bot().getUserName())) {
+        Control.bot().channelManager().leave(sArgs.channel);
         return true;
     }
 
