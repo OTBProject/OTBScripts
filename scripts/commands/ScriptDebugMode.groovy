@@ -22,13 +22,13 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
     switch (sArgs.argsList[0].toLowerCase()) {
         case "on":
         case "true":
-            Configs.editChannelConfig(sArgs.channel, { config -> config.setDebug(true) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setDebug(true) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " on";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "off":
         case "false":
-            Configs.editChannelConfig(sArgs.channel, { config -> config.setDebug(false) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setDebug(false) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.DEBUG_MODE_SET + " off";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;

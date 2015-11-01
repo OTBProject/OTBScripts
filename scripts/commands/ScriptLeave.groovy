@@ -1,5 +1,4 @@
 import com.github.otbproject.otbproject.bot.Control
-import com.github.otbproject.otbproject.channel.Channels
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.ScriptHelper
@@ -16,7 +15,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     if (sArgs.argsList[0].equalsIgnoreCase(Control.getBot().getUserName())) {
-        Channels.leave(sArgs.channel);
+        Control.getBot().channelManager().leave(sArgs.channel);
         return true;
     }
 

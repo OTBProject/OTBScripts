@@ -1,5 +1,5 @@
-import com.github.otbproject.otbproject.channel.Channels
-import com.github.otbproject.otbproject.channel.Channel
+import com.github.otbproject.otbproject.bot.Control
+import com.github.otbproject.otbproject.channel.ChannelProxy
 import com.github.otbproject.otbproject.messages.receive.PackagedMessage
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
@@ -20,7 +20,7 @@ public boolean execute(ScriptArgs sArgs) {
     }
 
     String channelName = sArgs.argsList[0].toLowerCase();
-    Optional<Channel> channelOptional = Channels.get(channelName);
+    Optional<ChannelProxy> channelOptional = Control.getBot().channelManager().get(channelName);
 
     if (!channelOptional.isPresent() || !channelOptional.get().isInChannel()) {
         String commandStr = ResponseCmd.NOT_IN_CHANNEL + " " + channelName;
@@ -28,7 +28,7 @@ public boolean execute(ScriptArgs sArgs) {
         return false;
     }
 
-    Channel channel = channelOptional.get();
+    ChannelProxy channel = channelOptional.get();
     UserLevel ul = UserLevels.getUserLevel(channel.getMainDatabaseWrapper(), channelName, sArgs.user);
     PackagedMessage packagedMessage = new PackagedMessage(String.join(" ", sArgs.argsList[1..-1]), sArgs.user, channelName, sArgs.destinationChannel, ul, MessagePriority.DEFAULT);
     channel.receiveMessage(packagedMessage);

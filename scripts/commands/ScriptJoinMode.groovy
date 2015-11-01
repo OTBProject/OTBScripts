@@ -15,24 +15,24 @@ public class ResponseCmd {
 
 public boolean execute(ScriptArgs sArgs) {
     if (sArgs.argsList.length < 1) {
-        String msg = "Current join mode: " + Configs.getFromBotConfig({ config -> config.getChannelJoinSetting().toString() } as Function<BotConfig, String>);
+        String msg = "Current join mode: " + Configs.getBotConfig().get({ config -> config.getChannelJoinSetting().toString() } as Function<BotConfig, String>);
         ScriptHelper.sendMessage(sArgs.destinationChannel, msg, MessagePriority.HIGH);
         return false;
     }
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "whitelist":
-            Configs.editBotConfig({ config -> config.setChannelJoinSetting(ChannelJoinSetting.WHITELIST) } as Consumer<BotConfig>)
+            Configs.getBotConfig().edit({ config -> config.setChannelJoinSetting(ChannelJoinSetting.WHITELIST) } as Consumer<BotConfig>)
             String commandStr = ResponseCmd.JOIN_MODE_SET + " WHITELIST";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "blacklist":
-            Configs.editBotConfig({ config -> config.setChannelJoinSetting(ChannelJoinSetting.BLACKLIST) } as Consumer<BotConfig>)
+            Configs.getBotConfig().edit({ config -> config.setChannelJoinSetting(ChannelJoinSetting.BLACKLIST) } as Consumer<BotConfig>)
             String commandStr = ResponseCmd.JOIN_MODE_SET + " BLACKLIST";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "none":
-            Configs.editBotConfig({ config -> config.setChannelJoinSetting(ChannelJoinSetting.NONE) } as Consumer<BotConfig>)
+            Configs.getBotConfig().edit({ config -> config.setChannelJoinSetting(ChannelJoinSetting.NONE) } as Consumer<BotConfig>)
             String commandStr = ResponseCmd.JOIN_MODE_SET + " NONE";
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
