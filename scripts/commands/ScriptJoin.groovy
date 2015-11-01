@@ -19,7 +19,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
         // If somehow the channel doesn't exist and this throws an exception,
         //  it will crash, which it probably should do anyway if the channel
         //  doesn't exist
-        Configs.editChannelConfig(sArgs.user, { config -> config.setEnabled(true) } as Consumer<ChannelConfig>)
+        Configs.getChannelConfig(sArgs.user).edit({ config -> config.setEnabled(true) } as Consumer<ChannelConfig>)
 
         ScriptHelper.runCommand(ResponseCmd.JOINED_CHANNEL, Control.getBot().getUserName(), Control.getBot().getUserName(), sArgs.user, MessagePriority.HIGH);
     }

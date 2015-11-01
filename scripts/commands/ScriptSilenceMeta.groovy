@@ -25,12 +25,12 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
         case "on":
         case "true":
             ChannelProxy channel = Control.getBot().channelManager().getOrThrow(sArgs.channel);
-            Configs.editChannelConfig(channel, { config -> config.setSilenced(true) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(channel).edit({ config -> config.setSilenced(true) } as Consumer<ChannelConfig>)
             channel.clearSendQueue();
             return true;
         case "off":
         case "false":
-            Configs.editChannelConfig(sArgs.channel, { config -> config.setSilenced(false) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setSilenced(false) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.UNSILENCED;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;

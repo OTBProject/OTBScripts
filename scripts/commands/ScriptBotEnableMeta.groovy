@@ -21,12 +21,12 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
 
     switch (sArgs.argsList[0].toLowerCase()) {
         case "true":
-            Configs.editChannelConfig(sArgs.channel, { config -> config.setEnabled(true) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setEnabled(true) } as Consumer<ChannelConfig>)
             String commandStr = ResponseCmd.BOT_ENABLE_SUCCESS;
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "false":
-            Configs.editChannelConfig(sArgs.channel, { config -> config.setEnabled(false) } as Consumer<ChannelConfig>)
+            Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setEnabled(false) } as Consumer<ChannelConfig>)
             channel.clearSendQueue();
             return true;
         default:

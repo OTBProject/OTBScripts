@@ -29,7 +29,7 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            Configs.editBotConfig({ config -> config.getWhitelist().add(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
+            Configs.getBotConfig().edit({ config -> config.getWhitelist().add(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
             String commandStr = ResponseCmd.ADD_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
@@ -39,12 +39,12 @@ public boolean execute(ScriptArgs sArgs) {
                 ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
                 return false;
             }
-            Configs.editBotConfig({ config -> config.getWhitelist().remove(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
+            Configs.getBotConfig().edit({ config -> config.getWhitelist().remove(sArgs.argsList[1].toLowerCase()) } as Consumer<BotConfig>);
             String commandStr = ResponseCmd.REMOVE_SUCCESS + " " + sArgs.argsList[1];
             ScriptHelper.runCommand(commandStr, sArgs.user, sArgs.channel, sArgs.destinationChannel, MessagePriority.HIGH);
             return true;
         case "list":
-            String list = Configs.getFromBotConfig({ config -> config.getWhitelist() } as Function<BotConfig, Set<String>>).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
+            String list = Configs.getBotConfig().get({ config -> config.getWhitelist() } as Function<BotConfig, Set<String>>).stream().sorted().collect(Collectors.joining(", ", "[", "]"));
             ScriptHelper.sendMessage(sArgs.destinationChannel, "Whitelist: " + list, MessagePriority.HIGH);
             return true;
         default:
