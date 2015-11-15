@@ -1,5 +1,5 @@
 import com.github.otbproject.otbproject.bot.Control
-import com.github.otbproject.otbproject.channel.ChannelProxyImpl
+import com.github.otbproject.otbproject.channel.ChannelProxy
 import com.github.otbproject.otbproject.messages.send.MessagePriority
 import com.github.otbproject.otbproject.proc.ScriptArgs
 import com.github.otbproject.otbproject.util.BuiltinCommands
@@ -17,6 +17,6 @@ public boolean execute(ScriptArgs sArgs) {
     String message = String.join(' ', sArgs.argsList);
 
     Control.bot().channelManager().proxyStream()
-            .forEach({ proxy -> ScriptHelper.sendMessage(proxy as ChannelProxyImpl, message, MessagePriority.HIGH)} as Consumer<? super ChannelProxyImpl>)
+            .forEach({ proxy -> ScriptHelper.sendMessage(proxy as ChannelProxy, message, MessagePriority.HIGH) } as Consumer<? super ChannelProxy>)
     return true;
 }
