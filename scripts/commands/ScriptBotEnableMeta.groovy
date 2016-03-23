@@ -1,4 +1,6 @@
+import com.github.otbproject.otbproject.bot.Control
 import com.github.otbproject.otbproject.channel.ChannelNotFoundException
+import com.github.otbproject.otbproject.channel.ChannelProxy
 import com.github.otbproject.otbproject.config.ChannelConfig
 import com.github.otbproject.otbproject.config.Configs
 import com.github.otbproject.otbproject.messages.send.MessagePriority
@@ -27,7 +29,7 @@ public boolean execute(ScriptArgs sArgs) throws ChannelNotFoundException {
             return true;
         case "false":
             Configs.getChannelConfig(sArgs.channel).edit({ config -> config.setEnabled(false) } as Consumer<ChannelConfig>)
-            channel.clearSendQueue();
+            Control.bot().channelManager().get(sArgs.channel).ifPresent({ channel -> channel.clearSendQueue() } as Consumer<ChannelProxy>)
             return true;
         default:
             String commandStr = BuiltinCommands.GENERAL_INVALID_ARG + " " + sArgs.commandName + " " + sArgs.argsList[0];
